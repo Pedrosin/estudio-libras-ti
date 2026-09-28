@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Estúdio Libras TI</title>
+<script>
+/* Tema antes do primeiro desenho (sem piscar): Automático segue o Windows; Claro/Escuro ficam salvos */
+(function () {
+  var CHAVE = 'estudio-libras-ti-tema', pref = 'auto', raiz = document.documentElement;
+  try { pref = localStorage.getItem(CHAVE) || 'auto'; } catch (e) {}
+  if (['auto', 'claro', 'escuro'].indexOf(pref) < 0) pref = 'auto';
+  var sistema = matchMedia('(prefers-color-scheme: dark)');
+  function aplicar() {
+    raiz.dataset.tema = pref === 'auto' ? (sistema.matches ? 'escuro' : 'claro') : pref;
+    var bs = document.querySelectorAll('.tema button');
+    for (var i = 0; i < bs.length; i++) bs[i].setAttribute('aria-checked', String(bs[i].dataset.tema === pref));
+  }
+  aplicar();
+  sistema.addEventListener('change', function () { if (pref === 'auto') aplicar(); });
+  document.addEventListener('DOMContentLoaded', aplicar);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.tema button'); if (!b) return;
+    pref = b.dataset.tema;
+    try { localStorage.setItem(CHAVE, pref); } catch (err) {}
+    aplicar();
+  });
+})();
+</script>
+<style>
+  :root{
+    /* texto corrido usa a instância Text; a Display (traço fino, espaçamento apertado) fica só nos títulos grandes via --fonte-titulo */
+    --fonte:-apple-system,"SF Pro Text","Segoe UI Variable Text","Segoe UI Variable","Segoe UI",system-ui,Roboto,sans-serif;
+    --fonte-titulo:-apple-system,"SF Pro Display","Segoe UI Variable Display",var(--fonte);
+    --mono:"SF Mono","Cascadia Code","Cascadia Mono",Consolas,ui-monospace,monospace;
+    --r-janela:28px; --r-vidro:22px; --r-cartao:20px; --r-item:14px; --r-campo:10px; --r-pill:999px;
+    --texto:#0b1b2b; --texto-2:#43586e; --texto-inv:#fff;
+    --acento:#0a84ff; --acento-2:#1fb6ff; --acento-fundo:rgba(10,132,255,.10);
+    --acento-texto:#0a5fd6; --acento-solido:#0a5fd6;
+    --ok:#34c759; --ok-texto:#0a3d1c; --ok-sinal:#0a3d1c; --ok-fundo:rgba(52,199,89,.22); --warn:#ffcc00; --warn-fundo:#fff6cc; --warn-texto:#6b4b00; --rec:#ff3b30;
+    --ceu-1:#1e8ff5; --ceu-2:#79d0ff; --ceu-3:#c9f3ff; --relva:#b8f0a8; --bokeh:rgba(255,255,255,.55); --bolha:rgba(255,255,255,.9);
+    --vidro:rgba(255,255,255,.52); --vidro-forte:rgba(255,255,255,.68); --vidro-opaco:#f4f9ff;
+    --vidro-borda:rgba(255,255,255,.80); --vidro-blur:16px; --vidro-sat:1.8;
+    --painel:rgba(255,255,255,.86); --painel-solido:#ffffff; --painel-borda:rgba(20,60,110,.12);
+    --linha:rgba(20,60,110,.12); --linha-forte:rgba(20,60,110,.22);
+    --video-fundo:#000; --video-borda:rgba(255,255,255,.55);
+    --hover:rgba(0,0,0,.05); --seg-fundo:rgba(0,0,0,.06); --zebra:rgba(0,0,0,.025); --secao:rgba(255,255,255,.45);
+    --lembrete:#0a6cff; --cobre-texto:#b9c6d8;
+    --sombra-flutuante:0 12px 40px rgba(12,54,110,.18), 0 1px 0 rgba(255,255,255,.9) inset;
+    --sombra-cartao:0 4px 18px rgba(12,54,110,.10);
+    --especular:inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.35);
+    --gel:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 48%,rgba(255,255,255,0) 52%,rgba(255,255,255,.10) 100%);
+    --gel-cor:linear-gradient(180deg,rgba(255,255,255,.18) 0%,rgba(255,255,255,.05) 45%,rgba(255,255,255,0) 50%,rgba(255,255,255,.06) 100%);
+    --brilho-1:rgba(255,255,255,.55); --brilho-2:rgba(255,255,255,.45); /* reflexo especular do vidro (.vidro::before) */
+    --rotulo-fundo:rgba(255,255,255,.62); /* pastilha atrás de texto que fica direto sobre o céu */
+    --aurora-1:rgba(190,255,225,.55); --aurora-2:rgba(140,225,255,.32);
+    --trilho:rgba(0,0,0,.08); --trilho-forte:rgba(0,0,0,.18); /* trilhos de progresso, switch desligado, alça do sheet, scrollbar: preto translúcido some no escuro */
+    --foco:0 0 0 2px var(--painel-solido),0 0 0 5px var(--acento);
+    --dur:.18s; --curva:cubic-bezier(.2,.8,.2,1);
+  }
+  /* tema: o script no <head> grava data-tema="claro|escuro" no <html> (Automático segue o Windows) */
+  :root{color-scheme:light}
+  :root[data-tema="escuro"]{ color-scheme:dark;
+    --texto:#eef4fb; --texto-2:#a3b6cb;
+    --acento:#3a9cff; --acento-2:#39c6ff; --acento-fundo:rgba(58,156,255,.16);
+    --acento-texto:#7fc0ff; --acento-solido:#1466d8;
+    --ok:#30d158; --ok-texto:#062b14; --ok-sinal:#8ff0a8; --ok-fundo:rgba(48,209,88,.18); --warn:#ffd60a; --warn-fundo:rgba(255,214,10,.14); --warn-texto:#ffe680; --rec:#ff453a;
+    --ceu-1:#04122a; --ceu-2:#0a3560; --ceu-3:#0e4f66; --relva:#0f5a4a; --bokeh:rgba(120,200,255,.28); --bolha:rgba(160,215,255,.6);
+    --vidro:rgba(18,30,48,.55); --vidro-forte:rgba(18,30,48,.72); --vidro-opaco:#152233;
+    --vidro-borda:rgba(255,255,255,.16); --painel:rgba(14,24,38,.88); --painel-solido:#101a28; --painel-borda:rgba(255,255,255,.10);
+    --linha:rgba(255,255,255,.10); --linha-forte:rgba(255,255,255,.20); --video-borda:rgba(255,255,255,.25);
+    --hover:rgba(255,255,255,.06); --seg-fundo:rgba(255,255,255,.08); --zebra:rgba(255,255,255,.03); --secao:rgba(255,255,255,.05);
+    --lembrete:#9fd0ff;
+    --sombra-flutuante:0 12px 40px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.12) inset;
+    --sombra-cartao:0 4px 18px rgba(0,0,0,.35);
+    --especular:inset 0 1px 0 rgba(255,255,255,.18), inset 0 -1px 0 rgba(255,255,255,.05);
+    --gel:linear-gradient(180deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.06) 48%,rgba(255,255,255,0) 52%,rgba(255,255,255,.04) 100%);
+    --gel-cor:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 45%,rgba(255,255,255,0) 50%,rgba(255,255,255,.03) 100%);
+    --brilho-1:rgba(255,255,255,.10); --brilho-2:rgba(255,255,255,.08); /* screen de branco forte sobre vidro escuro vira borrão cinza atrás da marca e do título da lista */
+    --rotulo-fundo:rgba(0,0,0,.38);
+    --trilho:rgba(255,255,255,.14); --trilho-forte:rgba(255,255,255,.24);
+    --aurora-1:rgba(70,235,175,.30); --aurora-2:rgba(60,150,255,.22);
+  }
+  @media (prefers-contrast:more){ :root{ --vidro-borda:rgba(0,0,0,.5); --linha:rgba(0,0,0,.5); --linha-forte:rgba(0,0,0,.6) }
+    :root[data-tema="escuro"]{ --vidro-borda:rgba(255,255,255,.6); --linha:rgba(255,255,255,.6); --linha-forte:rgba(255,255,255,.7) }
+    .vidro{background:var(--vidro-opaco);backdrop-filter:none;-webkit-backdrop-filter:none} }
+
+  *{box-sizing:border-box}
+  html{overflow-x:clip}
+  html,body{margin:0}
+  body{background:var(--ceu-2);color:var(--texto);font:15px/1.45 var(--fonte);-webkit-font-smoothing:antialiased}
+  a{color:var(--acento-texto)}
+  [hidden]{display:none!important}
+  /* foco por outline: não é afetado pelos box-shadow:none dos botões planos (segmentado, lista, dica) */
+  :focus-visible{outline:2px solid var(--acento);outline-offset:2px}
+  /* sobre vidro o azul do acento fica em ~2,5:1 (claro); a cor do texto dá >7:1 nos dois temas (WCAG 2.4.11) */
+  .vidro :focus-visible{outline-color:var(--texto)}
+
+  /* ---------- céu Aero (fundo) ---------- */
+  .ceu{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;
+    background:radial-gradient(90% 55% at 50% -10%,#fff 0%,transparent 60%),
+      linear-gradient(180deg,var(--ceu-1) 0%,var(--ceu-2) 42%,var(--ceu-3) 78%,var(--relva) 100%)}
+  .ceu svg{position:absolute;inset:-10%;width:120%;height:120%}
+  /* bolhas Aero: sobem animando só transform (compositor, 60 fps); cada uma tem posição, tamanho, tempo e atraso próprios.
+     O atraso negativo já espalha as bolhas pela tela ao abrir. */
+  .bolha{position:absolute;left:var(--x);top:100%;width:var(--s);height:var(--s);will-change:transform;
+    animation:subir var(--t) linear var(--d) infinite}
+  .bolha span{display:block;width:100%;height:100%;border-radius:50%;will-change:transform;
+    background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.95) 0 7%,rgba(255,255,255,.28) 20%,rgba(255,255,255,.06) 58%,var(--bolha) 100%);
+    border:1px solid rgba(255,255,255,.55);box-shadow:inset 0 -6px 14px rgba(255,255,255,.22),0 4px 18px rgba(0,60,140,.10);
+    opacity:var(--o,.75);animation:balancar var(--b) ease-in-out var(--d) infinite alternate}
+  /* aurora: faixas de luz em gradiente (sem filter), movidas só por transform */
+  .aurora i{position:absolute;left:-30vw;width:160vw;height:42vh;border-radius:50%;will-change:transform;mix-blend-mode:screen;
+    background:radial-gradient(50% 50% at 50% 50%,var(--aurora-1) 0%,var(--aurora-2) 38%,transparent 70%);animation:aurora var(--t) ease-in-out var(--d) infinite alternate}
+  .aurora i:nth-child(1){top:6vh;--t:38s;--d:-8s;--r:-10deg}
+  .aurora i:nth-child(2){top:22vh;--t:52s;--d:-30s;--r:7deg;opacity:.8}
+  .aurora i:nth-child(3){top:44vh;--t:46s;--d:-17s;--r:-4deg;opacity:.55}
+  @keyframes aurora{from{transform:translate3d(-8vw,0,0) rotate(var(--r)) scale(1,.8)}to{transform:translate3d(8vw,-3vh,0) rotate(calc(var(--r) * -.6)) scale(1.1,1.15)}}
+  body.rodando .aurora i,body.cam-on .aurora i{animation-play-state:paused}
+  /* comemoração do "Já domino" */
+  .festa{position:fixed;z-index:50;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 34% 28%,#fff 0 9%,rgba(255,255,255,.35) 24%,rgba(140,230,255,.25) 60%,rgba(120,255,190,.7) 100%);
+    border:1px solid rgba(255,255,255,.7);box-shadow:0 0 10px rgba(120,230,255,.45);opacity:0;will-change:transform,opacity;
+    animation:festa var(--t) cubic-bezier(.2,.7,.3,1) var(--atraso) forwards}
+  @keyframes festa{0%{opacity:0;transform:translate3d(0,0,0) scale(.3)}15%{opacity:1}100%{opacity:0;transform:translate3d(var(--dx),calc(var(--dy) * -1),0) scale(1)}}
+  .progresso.brilho::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(100deg,transparent 25%,rgba(255,255,255,.85) 50%,transparent 75%);animation:varrer .9s ease-out forwards}
+  @keyframes varrer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+  @keyframes subir{to{transform:translate3d(0,calc(-100vh - var(--s) - 60px),0)}}
+  @keyframes balancar{from{transform:translate3d(-14px,0,0)}to{transform:translate3d(14px,0,0)}}
+  /* câmera ligada ou gravando: tudo para onde está, o vidro não recalcula a cada quadro da webcam */
+  body.rodando :is(.bolha,.bolha span),body.cam-on :is(.bolha,.bolha span){animation-play-state:paused}
+
+  /* ---------- materiais ---------- */
+  .vidro{position:relative;background:var(--vidro);border:1px solid var(--vidro-borda);border-radius:var(--r-vidro);
+    box-shadow:var(--sombra-flutuante),var(--especular);
+    -webkit-backdrop-filter:blur(var(--vidro-blur)) saturate(var(--vidro-sat));backdrop-filter:blur(var(--vidro-blur)) saturate(var(--vidro-sat))}
+  .vidro::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(115deg,var(--brilho-1) 0%,rgba(255,255,255,0) 28%),radial-gradient(120% 60% at 50% -20%,var(--brilho-2),transparent 60%);
+    mix-blend-mode:screen}
+  .vidro > *{position:relative}
+  @supports not (backdrop-filter:blur(1px)){.vidro{background:var(--vidro-opaco)}}
+  /* a "refração" por feDisplacementMap saiu: rodava antes do blur(16px), que apagava o deslocamento de 7px, e era rasterizada em software a cada quadro do céu */
+  .painel-mat{background:var(--painel);border:1px solid var(--painel-borda);border-radius:var(--r-cartao);box-shadow:var(--sombra-cartao)}
+  @media (prefers-reduced-transparency:reduce){
+    .vidro{background:var(--vidro-opaco);backdrop-filter:none;-webkit-backdrop-filter:none}
+    .vidro::before{display:none}
+    .ceu svg,.bolha,.aurora,.festa{display:none}
+    .painel-mat{background:var(--painel-solido)}
+  }
+
+  /* ---------- botões e campos ---------- */
+  button,a.botao{font:500 14px/1 var(--fonte);height:34px;padding:0 14px;border-radius:var(--r-pill);cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;
+    color:var(--texto);background:var(--painel-solido);border:1px solid var(--linha-forte);
+    box-shadow:0 1px 2px rgba(0,0,0,.08),var(--especular);background-image:var(--gel);
+    transition:transform var(--dur) var(--curva),filter var(--dur),box-shadow var(--dur),background-color var(--dur)}
+  button:hover,a.botao:hover{filter:brightness(1.04);transform:translateY(-1px)}
+  button:active,a.botao:active{transform:scale(.97);filter:brightness(.96)}
+  button:disabled{opacity:.4;filter:none;transform:none;cursor:not-allowed}
+  /* botões coloridos: gel fino e fundo mais escuro para o texto branco ficar perto de 4,5:1 (estimado por cálculo) */
+  .primary{background:var(--gel-cor),linear-gradient(180deg,#1a7cec,#0a54c4);border-color:#0846a3;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+  .rec{background:var(--gel-cor),linear-gradient(180deg,#ee4f44,#b91a10);border-color:#96150d;color:#fff;font-weight:700;font-size:15px;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+  .ok{background:var(--gel),linear-gradient(180deg,#6fe39a,#34c759);border-color:#22a548;color:var(--ok-texto)}
+  /* gel Aero nos botões de ação: reflexo em cápsula na metade de cima, brilho interno embaixo e halo da cor; ao clicar o gel "afunda" */
+  :is(button,a.botao):is(.primary,.rec,.ok){position:relative;isolation:isolate;overflow:hidden}
+  :is(button,a.botao):is(.primary,.rec,.ok)::before{content:"";position:absolute;z-index:-1;left:7%;right:7%;top:1px;height:46%;border-radius:var(--r-pill);
+    background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,.08));pointer-events:none;transition:opacity var(--dur)}
+  :is(button,a.botao).primary{box-shadow:0 4px 14px rgba(10,84,196,.35),inset 0 -3px 8px rgba(120,200,255,.35),inset 0 1px 0 rgba(255,255,255,.55)}
+  :is(button,a.botao).rec{box-shadow:0 4px 14px rgba(185,26,16,.35),inset 0 -3px 8px rgba(255,150,130,.35),inset 0 1px 0 rgba(255,255,255,.55)}
+  :is(button,a.botao).ok{box-shadow:0 4px 14px rgba(34,165,72,.30),inset 0 -3px 8px rgba(200,255,210,.45),inset 0 1px 0 rgba(255,255,255,.7)}
+  :is(button,a.botao):is(.primary,.rec){text-shadow:0 1px 2px rgba(0,0,0,.35)}
+  :is(button,a.botao):is(.primary,.rec,.ok):active{transform:translateY(1px) scale(.985);filter:brightness(.94);box-shadow:inset 0 2px 7px rgba(0,0,0,.35)}
+  :is(button,a.botao):is(.primary,.rec,.ok):active::before{opacity:.45}
+  :is(button,a.botao):is(.primary,.rec,.ok):disabled{box-shadow:none}
+  .segmentado{display:inline-flex;gap:2px;padding:3px;border-radius:var(--r-pill);background:var(--seg-fundo)}
+  .segmentado button{height:30px;padding:0 14px;font-size:13px;background:transparent;border-color:transparent;box-shadow:none;color:var(--texto-2)}
+  .segmentado button:hover{transform:none;filter:none;color:var(--texto)}
+  .segmentado button.on,.segmentado button.ativa{background:var(--painel-solido);color:var(--texto);box-shadow:0 1px 3px rgba(0,0,0,.18),var(--especular)}
+  .texto{background:transparent;border-color:transparent;box-shadow:none;color:var(--texto-2);font-size:13px}
+  .texto:hover{transform:none;color:var(--texto);background:var(--hover)}
+  input[type=text],select{font:inherit;color:var(--texto);height:34px;width:100%;background:var(--painel-solido);border:1px solid var(--linha-forte);border-radius:var(--r-campo);padding:0 10px;box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+  select{appearance:none;-webkit-appearance:none;padding-right:30px;width:auto;max-width:100%;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14'%3E%3Cpath d='M1.5 5.5 5 2l3.5 3.5M1.5 8.5 5 12l3.5-3.5' fill='none' stroke='%2343586e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center}
+  :root[data-tema="escuro"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='14' viewBox='0 0 10 14'%3E%3Cpath d='M1.5 5.5 5 2l3.5 3.5M1.5 8.5 5 12l3.5-3.5' fill='none' stroke='%23a3b6cb' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+  .stepper{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:var(--r-campo);background:var(--seg-fundo)}
+  .stepper button{width:28px;height:28px;padding:0;border-radius:8px;font-size:16px;line-height:1}
+  .stepper input[type=number]{font:inherit;color:var(--texto);width:56px;height:28px;text-align:center;background:var(--painel-solido);border:1px solid var(--linha);border-radius:8px;appearance:textfield;-moz-appearance:textfield}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=checkbox],input[type=radio]{accent-color:var(--acento);width:18px;height:18px;margin:0;flex:none}
+  input[type=checkbox].switch{appearance:none;-webkit-appearance:none;width:42px;height:26px;border-radius:999px;background:var(--trilho-forte);position:relative;cursor:pointer;transition:background var(--dur)}
+  input[type=checkbox].switch::before{content:"";position:absolute;top:2px;left:0;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transform:translateX(2px);transition:transform var(--dur) var(--curva)}
+  input[type=checkbox].switch:checked{background:var(--gel),var(--ok)}
+  input[type=checkbox].switch:checked::before{transform:translateX(18px)}
+  kbd{font:11px/1 var(--mono);background:var(--painel-solido);border:1px solid var(--linha-forte);border-bottom-width:2px;border-radius:6px;padding:3px 6px;color:var(--texto)}
+
+  /* ---------- janela e barra ---------- */
+  .janela{max-width:1480px;margin:16px auto;padding:0 16px 32px;min-height:calc(100vh - 32px)}
+  body.rodando .barra{display:none} /* na rodada as abas ficam bloqueadas e o progresso não importa; some para não flutuar sobre o prompter nem filtrar a webcam */
+  /* a barra só flutua na Ficha (não há vídeo). Em Estudar e Gravar ela fica estática: sticky + backdrop-filter (blur) sobre a webcam e o vídeo
+     de referência re-filtra a cada quadro e fere o contrato "o vidro nunca fica em cima dos vídeos". irAba marca body[data-aba].
+     Dois tracks 1fr em volta das abas: o segmentado fica no centro real da barra, como no macOS. */
+  .barra{position:static;z-index:20;height:56px;padding:0 8px 0 14px;display:grid;grid-template-columns:88px minmax(0,1fr) auto minmax(0,1fr) 88px;gap:16px;align-items:center;border-radius:var(--r-pill)}
+  body[data-aba="ficha"] .barra{position:sticky;top:12px}
+  /* seletor de tema no lugar dos semáforos: cápsula com 3 ícones (Automático, Claro, Escuro) */
+  .tema{display:flex;gap:2px;padding:3px;width:88px;border-radius:var(--r-pill);background:var(--seg-fundo)}
+  .tema button{width:26px;height:26px;padding:0;display:grid;place-items:center;border-radius:50%;background:transparent;border-color:transparent;box-shadow:none;color:var(--texto-2)}
+  .tema button:hover{background:var(--hover);color:var(--texto)}
+  .tema button[aria-checked="true"]{background:var(--painel-solido);color:var(--acento-texto);box-shadow:0 1px 3px rgba(0,0,0,.18),var(--especular)}
+  :root[data-tema="escuro"] .tema button[aria-checked="true"]{background:rgba(255,255,255,.2);color:#fff}
+  .tema svg{width:15px;height:15px;display:block}
+  .marca{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-self:start;max-width:100%}
+  nav.abas{justify-self:center}
+  .aba{color:var(--texto-2)}
+  .progresso{position:relative;overflow:hidden;grid-column:4 / 6;justify-self:end;display:flex;align-items:center;gap:8px;color:var(--texto-2);font-size:13px;height:32px;padding:0 12px;border-radius:var(--r-pill);background:rgba(255,255,255,.35);white-space:nowrap}
+  :root[data-tema="escuro"] .progresso{background:rgba(255,255,255,.08)}
+  .barra-prog{width:120px;height:8px;background:var(--trilho);border-radius:99px;overflow:hidden}
+  .prog-curto{display:none}
+  .barra-prog i{display:block;height:100%;width:0;background:linear-gradient(180deg,#7ee8a2,#34c759);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);transition:width .3s}
+  .aviso-estado{margin:12px 0 0;padding:10px 14px;border-radius:var(--r-item);background:var(--warn-fundo);color:var(--warn-texto);border-left:3px solid var(--warn);font-size:13px}
+  main{padding:16px 0 0}
+  .painel{display:none}
+  .painel.ativo{display:block}
+
+  /* ---------- estudar ---------- */
+  #p-estudar.ativo{display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;align-items:start}
+  .lista{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding:8px;scrollbar-width:thin;scrollbar-color:var(--trilho-forte) transparent} /* top:16px: a barra é estática aqui, não flutua sobre a lista */
+  .lista h3,.lista summary{margin:12px 10px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--texto-2);font-weight:600}
+  .lista summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .lista summary::-webkit-details-marker{display:none}
+  .lista summary::after{content:"⌄";font-size:14px;transition:transform var(--dur)}
+  .lista details[open] summary::after{transform:rotate(180deg)}
+  .lista button{display:flex;width:100%;height:34px;justify-content:space-between;align-items:center;gap:8px;text-align:left;font-size:14px;
+    background:transparent;border-color:transparent;box-shadow:none;padding:0 10px;margin:1px 0;border-radius:var(--r-item);color:var(--texto)}
+  .lista button:hover{transform:none;filter:none;background:var(--hover)}
+  .lista button span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lista button.atual{background:var(--gel-cor),var(--acento-solido);color:#fff;box-shadow:var(--especular)}
+  .lista button.atual:focus-visible{outline-color:#fff;outline-offset:-3px} /* anel por dentro do botão azul, onde o branco contrasta; por fora cairia no vidro claro */
+  .lista .st{font-weight:700;white-space:nowrap;font-size:12px}
+  .lista .st.ok{color:var(--ok-sinal);background:var(--ok-fundo);padding:2px 8px;border-radius:var(--r-pill)}
+  .lista button.atual .st.ok{color:#fff;background:rgba(255,255,255,.22)}
+  .lista .st.aula{color:var(--warn-texto);background:var(--warn-fundo);padding:2px 8px;border-radius:var(--r-pill)}
+  .dica{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.75),rgba(200,235,255,.6));border:1px solid rgba(255,255,255,.8);border-radius:var(--r-item);padding:12px 44px 12px 16px;color:var(--texto);margin-bottom:16px;font-size:14px;box-shadow:var(--sombra-cartao)}
+  :root[data-tema="escuro"] .dica{background:rgba(58,156,255,.12);border-color:rgba(255,255,255,.12)}
+  .dica .fechar{position:absolute;right:8px;top:8px;width:24px;height:24px;padding:0;border-radius:50%;background:transparent;border-color:transparent;box-shadow:none;font-size:12px}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  figure{margin:0}
+  .video-card{contain:layout} /* não contain:content: o paint recortaria a sombra da .moldura ao padding-box da figure */
+  .moldura{position:relative;background:var(--video-fundo);border:1px solid var(--video-borda);border-radius:18px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .moldura video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+  .espelho{transform:scaleX(-1)}
+  /* pastilha: o rótulo fica direto sobre o céu, e --texto-2 solto sobre o azul não garante 4,5:1 */
+  figcaption.rotulo{font:12px/1.3 var(--fonte);color:var(--texto);margin-top:8px;padding:3px 10px;border-radius:var(--r-pill);background:var(--rotulo-fundo);display:inline-flex;align-items:center;gap:6px}
+  body.cam-on figcaption.cam::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+  .cobre{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;text-align:center;padding:18px;color:var(--cobre-texto);
+    background:radial-gradient(60% 60% at 50% 40%,#12203a,#07090d)}
+  body.cam-on .cam-off{display:none}
+  .msg-camera:empty{display:none}
+  .msg-camera{color:#ffe08a;max-width:440px}
+  .erro-video{position:absolute;left:8px;right:8px;bottom:8px;background:rgba(120,20,20,.9);border:1px solid var(--rec);color:#fff;padding:8px 10px;border-radius:10px;font-size:13px} /* fundo sólido: nada de backdrop-filter sobre o vídeo */
+  .erro-video a{color:#fff}
+  .capsula-ctrl{margin:14px auto;width:max-content;max-width:100%;padding:6px 8px;border-radius:var(--r-pill);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  #p-estudar .capsula-ctrl{min-width:min(100%,640px)} /* largura reservada: a cápsula não muda nem recentra quando #trechoBtns alterna entre item INES (oculto) e IFBA */
+  .sep{flex:1}
+  #linkFonte{font-size:13px;padding:0 8px;white-space:nowrap}
+  .capsula-ctrl a{color:var(--texto);text-decoration-color:var(--acento)} /* --acento-texto a 13px sobre o vidro claro fica perto de 4,5:1 */
+  .inspetor{padding:20px 22px}
+  .inspetor h2{margin:0 0 8px;font:800 30px/1.15 var(--fonte-titulo);letter-spacing:-.01em}
+  .glosa{font:15px/1.4 var(--mono);background:var(--acento-fundo);border:1px solid var(--linha);padding:8px 12px;border-radius:10px;margin:8px 0}
+  .acepcao{margin:8px 0;font-size:15px}
+  .fonte{color:var(--texto-2);margin:6px 0;font-size:13px}
+  .nota{margin:8px 0;padding:8px 12px;border-radius:10px;background:var(--warn-fundo);color:var(--warn-texto);border-left:3px solid var(--warn);font-size:14px}
+  .params{border:1px solid var(--linha);border-radius:var(--r-item);padding:10px 14px 12px;margin:14px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 18px}
+  .params legend{color:var(--texto-2);font-size:12px;padding:0 6px}
+  .params label{display:flex;gap:8px;align-items:center;cursor:pointer;color:var(--texto-2)}
+  .params label:has(input:checked){color:var(--texto);font-weight:600}
+  .acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  /* ---------- ficha ---------- */
+  .grupo-titulo{font-size:13px;font-weight:600;color:var(--texto);margin:24px 12px 8px;display:inline-flex;padding:3px 12px;border-radius:var(--r-pill);background:var(--rotulo-fundo)} /* pastilha: título direto sobre o céu */
+  .grupo-titulo:first-child{margin-top:4px}
+  .grupo{padding:16px 20px;margin-bottom:8px}
+  .grupo.tabela-wrap{padding:0;overflow:hidden}
+  .grupo p{margin:6px 0}
+  .grupo .acoes{padding:0}
+  .grupo.tabela-wrap .acoes,.grupo.tabela-wrap > .fonte{padding:12px 16px}
+  .rolagem{overflow-x:auto}
+  /* a máscara só entra quando a tabela transborda (classe posta por JS): sem overflow ela esmaecia a faixa de alerta nos px 0-3 da primeira célula */
+  .rolagem.transborda{mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 12px),transparent)}
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;min-width:760px}
+  thead th{position:sticky;top:0;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--texto-2);background:var(--painel);border-bottom:1px solid var(--linha);padding:10px 12px}
+  td{text-align:left;vertical-align:top;padding:10px 12px}
+  tbody tr:nth-child(even) td{background:var(--zebra)}
+  tbody tr:hover td{background:var(--acento-fundo)}
+  td .num{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--acento-fundo);color:var(--acento-texto)}
+  td small{display:block;color:var(--warn-texto);font-size:12px;margin-top:2px}
+  td small.igual{color:var(--texto-2)}
+  tr.alerta td{background:var(--warn-fundo)!important}
+  tr.alerta td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+  td label{display:flex;gap:6px;align-items:center;white-space:nowrap;cursor:pointer}
+  pre.txt{white-space:pre-wrap;font:13px/1.5 var(--mono);background:rgba(0,0,0,.04);border:1px solid var(--linha);border-radius:12px;padding:12px;margin:8px 0}
+  :root[data-tema="escuro"] pre.txt{background:rgba(255,255,255,.04)}
+  .checagem label{display:flex;gap:10px;align-items:center;min-height:32px;cursor:pointer}
+  .checagem label:has(:checked){text-decoration:line-through;color:var(--texto-2)}
+  ul.limpa{margin:6px 0;padding-left:20px}
+  ul.limpa li{margin:6px 0}
+
+  /* ---------- gravar ---------- */
+  #p-gravar.ativo{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+  body.rodando #p-gravar.ativo{grid-template-columns:minmax(0,1fr)}
+  body.rodando .config{display:none}
+  .prompter{background:var(--painel-solido);padding:16px 22px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+  .prompter .esq{min-width:0}
+  .prompter .agora{font:800 44px/1.1 var(--fonte-titulo);letter-spacing:-.015em}
+  .prompter .lembrete{font:600 22px/1.3 var(--mono);color:var(--lembrete);margin-top:4px}
+  .prompter .prox{color:var(--texto-2);font-size:18px;font-weight:500;margin-top:4px}
+  .prompter .tempo{height:8px;background:var(--trilho);border-radius:99px;overflow:hidden;margin-top:10px}
+  .prompter .tempo i{display:block;height:100%;width:0;background:linear-gradient(90deg,#39c6ff,#0a84ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+  body.rodando .prompter{position:sticky;top:12px;z-index:15}
+  /* na rodada a barra some e a coluna de ajustes esconde: o prompter escala pelo viewport para ler a 1,5 m (1366 px → .agora 68 px, .lembrete 35 px).
+     Na apresentação e no encerramento o que precisa ser lido é a glosa (.lembrete), então o título cai para o tamanho dela e a altura do prompter não explode. */
+  @media (min-width:640px){
+    body.rodando .prompter .agora{font-size:clamp(44px,5vw,76px)}
+    body.rodando .prompter .esq:has(.lembrete:not([hidden])) .agora{font-size:clamp(28px,2.6vw,40px)}
+    body.rodando .prompter .lembrete{font-size:clamp(22px,2.6vw,38px)}
+    body.rodando .prompter .prox{font-size:clamp(18px,1.6vw,24px)}
+  }
+  .gravando{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:var(--r-pill);background:var(--gel-cor),linear-gradient(180deg,#ee4f44,#b91a10);color:#fff;font-weight:700;font-size:14px;white-space:nowrap;box-shadow:var(--especular);text-shadow:0 1px 1px rgba(0,0,0,.25)}
+  .gravando::before{content:"";width:10px;height:10px;border-radius:50%;background:#fff;animation:pulsar 1.2s ease-in-out infinite}
+  @keyframes pulsar{50%{opacity:.4}}
+  #palcoRec{aspect-ratio:16/9}
+  /* na rodada o quadro cabe na dobra: altura limitada e largura transferida pelo aspect-ratio (width/height auto), sem letterbox —
+     a legenda de prévia é posicionada em % do #palcoRec e precisa bater com o quadro gravado. 280px = prompter (tamanho base) + margens + cápsula de controle;
+     os 4.5vw acompanham o crescimento do prompter escalado (em 1366x768 a apresentação, com a glosa em duas linhas, fecha em ~766 px) */
+  body.rodando #palcoRec{width:auto;height:auto;max-width:100%;max-height:calc(100vh - 280px - 4.5vw);margin:0 auto;border-color:var(--rec);box-shadow:0 0 0 3px rgba(255,59,48,.35)}
+  .legenda{position:absolute;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.62);color:#fff;font-weight:700;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;text-align:center;border-radius:.35em;padding:.25em .6em;line-height:1.25;white-space:nowrap;pointer-events:none}
+  .legenda.topo{top:4%}
+  .legenda.baixo{bottom:4%}
+  body:not(.cam-on) .legenda{display:none}
+  .canto{position:absolute;right:10px;bottom:10px;width:24%;aspect-ratio:4/3;border:2px solid rgba(255,255,255,.7);border-radius:10px;overflow:hidden;background:#000;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+  .canto video{width:100%;height:100%;object-fit:contain}
+  .canto span{position:absolute;left:4px;top:4px;font-size:11px;background:rgba(0,0,0,.65);color:#fff;padding:2px 7px;border-radius:99px}
+  .contagem{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 160px/1 var(--fonte-titulo);color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.6);pointer-events:none}
+  .rodando-ctrl{display:none}
+  body.rodando .rodando-ctrl{display:flex}
+  .config{position:sticky;top:16px;padding:8px;display:flex;flex-direction:column;gap:8px} /* top:16px: a barra é estática em Gravar */
+  .secao{background:var(--secao);border-radius:var(--r-item);padding:12px 14px}
+  .config h3{margin:0 0 8px;font-size:11px;color:var(--texto-2);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+  .config label{display:flex;gap:10px;align-items:center;margin:6px 0;cursor:pointer}
+  .config .campo{display:block;margin:6px 0}
+  .config .campo span{display:block;font-size:12px;color:var(--texto-2);margin-bottom:4px}
+  .config .linha{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:4px 0;font-size:13px;color:var(--texto-2)}
+  .opcao-seg{display:flex;gap:4px;padding:3px;border-radius:var(--r-pill);background:var(--seg-fundo)}
+  .opcao-seg label{position:relative;flex:1;margin:0;justify-content:center;height:30px;border-radius:var(--r-pill);font-size:13px;color:var(--texto-2)}
+  .opcao-seg label input{position:absolute;opacity:0;width:100%;height:100%;left:0;top:0;margin:0;cursor:pointer}
+  .opcao-seg label:has(:checked){background:var(--painel-solido);color:var(--texto);box-shadow:0 1px 3px rgba(0,0,0,.18),var(--especular)}
+  .opcao-seg label input:focus-visible{outline:none} /* o input é invisível e cobre o label; o anel vai no label */
+  .opcao-seg label:has(:focus-visible){box-shadow:var(--foco)}
+  .botoes-rec{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+  .aviso{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--warn-fundo);border-left:3px solid var(--warn);color:var(--warn-texto);font-size:13px}
+  .sheet{position:relative;padding:20px 22px;margin-top:16px}
+  .sheet::before{content:"";position:absolute;left:50%;top:8px;width:36px;height:5px;border-radius:99px;background:var(--trilho-forte);transform:translateX(-50%)}
+  .sheet:not([hidden]){animation:sheet-in .32s var(--curva)}
+  @keyframes sheet-in{from{opacity:0;transform:translateY(-14px) scale(.98)}}
+  .sheet h2{margin:8px 0 12px;font-size:22px}
+  .sheet video{width:100%;max-height:60vh;background:#000;border-radius:14px;display:block;box-shadow:var(--sombra-cartao)}
+  #resInfo{font:12px/1 var(--mono);padding:8px 10px;border-radius:8px;background:var(--acento-fundo);color:var(--texto)}
+
+  /* ---------- responsivo ---------- */
+  @media (max-width:1199px){
+    #p-estudar.ativo{grid-template-columns:250px minmax(0,1fr)}
+    #p-gravar.ativo{grid-template-columns:minmax(0,1fr) 310px}
+  }
+  /* abaixo de 1100 a pastilha de progresso (~257 px) não cabe na metade direita da barra centrada: abas deixam de ser centradas e o progresso encolhe */
+  @media (max-width:1099px){
+    .barra{grid-template-columns:auto minmax(0,1fr) auto auto}
+    .progresso{grid-column:auto}
+    .barra-prog{width:64px}
+  }
+  @media (max-width:859px){
+    .barra-prog{display:none}
+    .prog-longo{display:none}
+    .prog-curto{display:inline}
+  }
+  @media (max-width:979px){
+    #p-estudar.ativo,#p-gravar.ativo{grid-template-columns:minmax(0,1fr)}
+    .lista{position:static;max-height:none;display:flex;overflow-x:auto;scroll-snap-type:x proximity;padding:6px;gap:6px;border-radius:var(--r-pill);align-items:center} /* estática como na v1: sticky de vidro ficaria sobre o .duo ao rolar */
+    .lista h3,.lista summary{margin:0 4px;white-space:nowrap;border-left:1px solid var(--linha);padding-left:10px}
+    .lista h3:first-child{border-left:0;padding-left:4px}
+    .lista details{display:contents}
+    .lista details::details-content{display:contents} /* Chrome ≥131: o ::details-content da UA é display:block e viraria um item da faixa, empilhando a reserva na vertical */
+    .lista button{width:auto;white-space:nowrap;scroll-snap-align:center;height:30px;font-size:13px;flex:none}
+    .config{position:static;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .config .secao-fim{grid-column:1/-1}
+  }
+  @media (max-width:639px){
+    :root{--r-vidro:18px;--r-cartao:16px;--r-item:12px}
+    .janela{margin:8px auto;padding:0 12px 24px}
+    .barra{grid-template-columns:auto minmax(0,1fr) auto;padding:0 8px 0 12px} /* as abas saem do grid (fixas no rodapé) */
+    .barra-prog{display:none} /* a pastilha com trilho levava ~230 dos 375 px e a marca virava "Est…"; fica só o "0 de 10" */
+    nav.abas{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:30;background:var(--vidro);border:1px solid var(--vidro-borda);
+      -webkit-backdrop-filter:blur(var(--vidro-blur)) saturate(var(--vidro-sat));backdrop-filter:blur(var(--vidro-blur)) saturate(var(--vidro-sat));box-shadow:var(--sombra-flutuante)}
+    body.rodando nav.abas{display:none}
+    /* mesma regra da barra: a aba fixa no rodapé passa sobre os vídeos ao rolar; fora da Ficha vira opaca, sem filtrar quadro vivo */
+    body:not([data-aba="ficha"]) nav.abas{background:var(--vidro-opaco);backdrop-filter:none;-webkit-backdrop-filter:none}
+    main{padding-bottom:84px}
+    .duo{grid-template-columns:1fr}
+    .prompter{grid-template-columns:1fr}
+    .prompter .agora{font-size:30px}
+    .prompter .lembrete{font-size:17px}
+    .prompter .prox{font-size:15px}
+    .capsula-ctrl{width:100%}
+    .contagem{font-size:96px}
+  }
+  /* depois do bloco ≤639: a aba fixa no rodapé também fica opaca com transparência reduzida */
+  @media (prefers-reduced-transparency:reduce){
+    nav.abas{background:var(--painel-solido)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  }
+  /* tema escuro: a pílula ativa precisa ficar mais clara que o trilho, senão lê como rebaixo */
+  :root[data-tema="escuro"] :is(.segmentado button.on,.segmentado button.ativa,.opcao-seg label:has(:checked)){background:rgba(255,255,255,.2)}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="ceu" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="bokeh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="18"/></filter>
+      <linearGradient id="onda" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d9ffb0" stop-opacity=".0"/><stop offset="1" stop-color="#8fe36a" stop-opacity=".45"/>
+      </linearGradient>
+    </defs>
+    <g filter="url(#bokeh)" fill="var(--bokeh)">
+      <circle cx="180" cy="160" r="130"/><circle cx="1320" cy="120" r="90"/><circle cx="700" cy="90" r="60"/>
+      <circle cx="1500" cy="420" r="170"/><circle cx="90" cy="620" r="110"/><circle cx="980" cy="330" r="70"/>
+      <circle cx="420" cy="780" r="140"/><circle cx="1150" cy="700" r="100"/><circle cx="820" cy="560" r="45"/>
+    </g>
+    <path fill="url(#onda)" d="M0 720 C 300 660, 500 800, 800 740 S 1300 660, 1600 730 L1600 900 L0 900 Z"/>
+  </svg>
+  <div class="aurora"><i></i><i></i><i></i></div>
+  <div class="bolha" style="--x:6%;--s:64px;--t:34s;--d:-4s;--b:7s"><span></span></div>
+  <div class="bolha" style="--x:14%;--s:22px;--t:26s;--d:-19s;--b:5s;--o:.9"><span></span></div>
+  <div class="bolha" style="--x:23%;--s:96px;--t:46s;--d:-30s;--b:9s;--o:.6"><span></span></div>
+  <div class="bolha" style="--x:33%;--s:34px;--t:29s;--d:-11s;--b:6s"><span></span></div>
+  <div class="bolha" style="--x:42%;--s:16px;--t:22s;--d:-2s;--b:4s;--o:.9"><span></span></div>
+  <div class="bolha" style="--x:51%;--s:58px;--t:38s;--d:-25s;--b:8s"><span></span></div>
+  <div class="bolha" style="--x:60%;--s:26px;--t:27s;--d:-14s;--b:5s;--o:.85"><span></span></div>
+  <div class="bolha" style="--x:68%;--s:80px;--t:42s;--d:-6s;--b:9s;--o:.65"><span></span></div>
+  <div class="bolha" style="--x:77%;--s:40px;--t:31s;--d:-21s;--b:6s"><span></span></div>
+  <div class="bolha" style="--x:85%;--s:18px;--t:24s;--d:-9s;--b:4s;--o:.9"><span></span></div>
+  <div class="bolha" style="--x:91%;--s:70px;--t:40s;--d:-33s;--b:8s;--o:.7"><span></span></div>
+  <div class="bolha" style="--x:97%;--s:30px;--t:28s;--d:-16s;--b:5s"><span></span></div>
+</div>
+<div class="janela">
+<header class="barra vidro">
+  <div class="tema" role="radiogroup" aria-label="Tema">
+    <button type="button" role="radio" data-tema="auto" title="Tema automático (segue o Windows)" aria-label="Automático"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 1.8a6.2 6.2 0 0 1 0 12.4z" fill="currentColor"/></svg></button>
+    <button type="button" role="radio" data-tema="claro" title="Tema claro" aria-label="Claro"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v1.8M8 13.2V15M1 8h1.8M13.2 8H15M3.05 3.05l1.27 1.27M11.68 11.68l1.27 1.27M3.05 12.95l1.27-1.27M11.68 4.32l1.27-1.27"/></g></svg></button>
+    <button type="button" role="radio" data-tema="escuro" title="Tema escuro" aria-label="Escuro"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.6 10.1A6 6 0 0 1 5.9 2.4a6 6 0 1 0 7.7 7.7z" fill="currentColor"/></svg></button>
+  </div>
+  <div class="marca">Estúdio Libras · TI</div>
+  <nav class="abas segmentado" role="tablist" aria-label="Seções">
+    <button class="aba ativa" data-aba="estudar" type="button" role="tab" aria-selected="true">Estudar</button>
+    <button class="aba" data-aba="ficha" type="button" role="tab" aria-selected="false">Ficha e fontes</button>
+    <button class="aba" data-aba="gravar" type="button" role="tab" aria-selected="false">Gravar</button>
+  </nav>
+  <div class="progresso" aria-live="polite"><span id="progTxt">0 de 10 dominados</span><div class="barra-prog"><i id="progBarra"></i></div></div>
+</header>
+<div class="aviso-estado" id="avisoEstado" role="status" hidden></div>
+
+<main>
+  <!-- ESTUDAR -->
+  <section class="painel ativo" id="p-estudar">
+    <aside class="lista vidro" id="lista" aria-label="Sinais"></aside>
+    <div class="conteudo">
+      <div class="dica" id="dicaEstudo">
+        <button class="fechar" id="fecharDica" type="button" title="Fechar" aria-label="Fechar dica">✕</button>
+        <b>Como usar:</b> ligue a câmera, escolha um sinal na lista, assista em 0,5× e imite junto, olhando os dois lados.
+        Marque os 5 parâmetros quando baterem e, quando conseguir fazer sem olhar, marque <b>Já domino</b>.
+        Atalhos: <kbd>←</kbd> <kbd>→</kbd> trocam de sinal, <kbd>Espaço</kbd> pausa, <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> mudam a velocidade.
+        Os vídeos vêm direto das fontes, então precisa de internet.
+      </div>
+      <div class="duo">
+        <figure class="video-card">
+          <div class="moldura">
+            <video id="refVideo" muted playsinline preload="auto"></video>
+            <div class="erro-video" id="refErro" aria-live="polite" hidden></div>
+          </div>
+          <figcaption class="rotulo" id="refRotulo">Vídeo da fonte</figcaption>
+        </figure>
+        <figure class="video-card">
+          <div class="moldura">
+            <video id="camEstudo" class="camfeed espelho" muted playsinline autoplay></video>
+            <div class="cobre cam-off">
+              <button class="primary" data-ligar-camera type="button">Ligar câmera</button>
+              <div>Sua imagem aparece espelhada, como num espelho de verdade.</div>
+              <div class="msg-camera" aria-live="polite"></div>
+            </div>
+          </div>
+          <figcaption class="rotulo cam">Você (espelhado)</figcaption>
+        </figure>
+      </div>
+      <div class="ctrl vidro capsula-ctrl">
+        <span class="segmentado" id="velBtns" role="group" aria-label="Velocidade">
+          <button data-vel="0.5" type="button" aria-pressed="false">0,5×</button><button data-vel="0.75" type="button" aria-pressed="false">0,75×</button><button data-vel="1" type="button" aria-pressed="false">1×</button>
+        </span>
+        <button id="btnPausa" type="button">Pausar</button>
+        <span class="segmentado" id="trechoBtns" role="group" aria-label="Trecho do vídeo" hidden>
+          <button data-trecho="1" type="button" aria-pressed="false">Só o sinal</button><button data-trecho="0" type="button" aria-pressed="false">Vídeo inteiro</button>
+        </span>
+        <span class="sep"></span>
+        <a id="linkFonte" target="_blank" rel="noopener">Abrir na fonte ↗</a>
+      </div>
+      <div class="info painel-mat inspetor">
+        <h2 id="infoTermo"></h2>
+        <div class="glosa" id="infoGlosa" hidden></div>
+        <p class="acepcao" id="infoAcepcao"></p>
+        <p class="fonte" id="infoFonte"></p>
+        <p class="nota" id="infoNota" hidden></p>
+        <fieldset class="params" id="params">
+          <legend>Comparando com o vídeo, já conferi:</legend>
+          <label><input type="checkbox" data-p="0"> Configuração de mão</label>
+          <label><input type="checkbox" data-p="1"> Ponto de articulação</label>
+          <label><input type="checkbox" data-p="2"> Movimento</label>
+          <label><input type="checkbox" data-p="3"> Orientação da palma</label>
+          <label><input type="checkbox" data-p="4"> Expressão facial e corporal</label>
+        </fieldset>
+        <div class="acoes">
+          <button id="btnAnt" type="button">◀ Anterior</button>
+          <button id="btnDomino" type="button" aria-pressed="false">Já domino este sinal</button>
+          <span class="sep"></span>
+          <button id="btnProx" class="primary" type="button">Próximo ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FICHA -->
+  <section class="painel" id="p-ficha">
+    <h2 class="grupo-titulo">Os 10 sinais e de onde vieram</h2>
+    <div class="grupo painel-mat tabela-wrap">
+      <p class="fonte">O trabalho pede sinais <b>inéditos</b>. Se algum destes apareceu nas videoaulas do módulo, marque "já apareceu" e troque por um da reserva. A troca muda a lista, a gravação e o roteiro baixado.</p>
+      <div class="rolagem">
+        <table class="tabela-mac">
+          <thead><tr><th>#</th><th>Termo no vídeo</th><th>Fonte</th><th>Sentido conferido na fonte</th><th>Videoaulas</th><th>Trocar por</th></tr></thead>
+          <tbody id="fichaCorpo"></tbody>
+        </table>
+      </div>
+      <div class="acoes"><button id="btnRestaurar" type="button">Voltar à lista sugerida</button></div>
+    </div>
+
+    <h2 class="grupo-titulo">Por que o roteiro mudou</h2>
+    <div class="grupo painel-mat">
+      <ul class="limpa">
+        <li><b>CÓDIGO → DIGITAR.</b> Não há sinal de "código" no sentido de programação no INES, no glossário do IFBA nem no canal do AVA. No Spread the Sign o verbete existe, mas sem vídeo em Libras do Brasil. DIGITAR está no INES com sentido de informática. Na reserva há BUG (UTFPR), se preferir um termo de programação.</li>
+        <li><b>SEGURANÇA DA INFORMAÇÃO = CIBERSEGURANÇA.</b> No INES, SEGURANÇA tem dois sinais (o profissional e "situação fora de perigo") e SENHA é S-E-N-H-A soletrado seguido do sinal SEGREDO, então nenhum serve. O sinal de CIBERSEGURANÇA vem do REA "Sinais na Libras – Área de Tecnologia" da UTFPR, cuja página define o termo como "também chamada de segurança da tecnologia da informação". A legenda no vídeo sai como "CIBERSEGURANÇA (segurança da informação)".</li>
+        <li><b>Armadilha evitada:</b> o sinal segue o sentido, não a palavra. No INES, BANCO é assento ou banco de dinheiro, e DADO é o dado de jogar. Por isso BANCO DE DADOS veio do glossário de informática do IFBA.</li>
+        <li><b>Canal regional do AVA (LSBCASMS):</b> consultado. Tem 7 vídeos (Biologia; História, Artes e Literatura; Filosofia e Sociologia; Língua Portuguesa; Datilologia; Metáforas) e nenhum é de TI, então as fontes usadas são nacionais.</li>
+      </ul>
+    </div>
+
+    <h2 class="grupo-titulo">Apresentação: nome e curso</h2>
+    <div class="grupo painel-mat">
+      <div class="glosa" id="fichaGlosa"></div>
+      <p>Frase sugerida, em glosa, com sinais do INES e na ordem dos exemplos do próprio dicionário ("NOME ME@ A-L-E-X-A-N-D-R-E" e "CURSO INFORMÁTICA EU FORMAR JÁ"). Na aba Estudar, o item "Frase completa" toca os sinais em sequência. O nome soletrado segue o campo Nome da aba Gravar.</p>
+      <p class="nota">Seu roteiro prevê a apresentação falada. Em trabalho de Libras ela costuma ser sinalizada, com o nome soletrado. Confira no enunciado. Se o módulo ensinou outra forma de se apresentar, use a do módulo.</p>
+    </div>
+
+    <h2 class="grupo-titulo">Fontes consultadas</h2>
+    <div class="grupo painel-mat">
+      <pre class="txt" id="txtFontes"></pre>
+      <div class="acoes">
+        <button id="btnCopiarFontes" type="button">Copiar fontes</button>
+        <button id="btnBaixarRoteiro" class="primary" type="button">Baixar roteiro atualizado (.md)</button>
+      </div>
+    </div>
+
+    <h2 class="grupo-titulo">Checklist antes do envio</h2>
+    <div class="grupo painel-mat checagem">
+      <div id="checagem"></div>
+    </div>
+  </section>
+
+  <!-- GRAVAR -->
+  <section class="painel" id="p-gravar">
+    <div class="palco-col">
+      <div class="prompter painel-mat">
+        <div class="esq">
+          <div class="agora" id="pAgora" aria-live="assertive">Pronto para gravar</div>
+          <div class="lembrete" id="pLembrete" hidden></div>
+          <div class="prox" id="pProx" aria-live="polite">Ligue a câmera para começar.</div>
+          <div class="tempo"><i id="pTempo"></i></div>
+        </div>
+        <div class="gravando" id="pRec" hidden>GRAVANDO <span id="pRecTempo">0:00</span></div>
+      </div>
+      <figure id="palcoRec" class="video-card moldura">
+          <video id="camGravar" class="camfeed espelho" muted playsinline autoplay></video>
+          <div class="legenda topo" id="legendaPrev"></div>
+          <div class="canto" id="canto" hidden><video id="cantoVideo" muted playsinline></video><span>referência · não entra no vídeo</span></div>
+          <div class="contagem" id="contagem" hidden></div>
+          <div class="cobre cam-off">
+            <button class="primary" data-ligar-camera type="button">Ligar câmera</button>
+            <div>Enquadre da cabeça até a cintura, com espaço para os cotovelos. Luz de frente, fundo liso.</div>
+            <div class="msg-camera" aria-live="polite"></div>
+          </div>
+      </figure>
+      <div class="rodando-ctrl vidro capsula-ctrl">
+        <button id="btnVoltarPasso" type="button">◀ Voltar</button>
+        <button id="btnAvancar" class="primary" type="button">Avançar ▶</button>
+        <span class="sep"></span>
+        <button id="btnParar" class="rec" type="button">■ Parar</button>
+      </div>
+      <div class="sheet painel-mat resultado" id="resultado" hidden>
+        <h2>Vídeo gravado</h2>
+        <video id="resVideo" controls playsinline></video>
+        <div class="acoes" style="margin-top:12px">
+          <a id="resBaixar" class="botao primary" download>Baixar vídeo</a>
+          <span id="resInfo"></span>
+        </div>
+        <p class="fonte" id="resAviso" aria-live="polite"></p>
+        <p class="fonte">Depois, suba o arquivo no Google Drive, clique em Compartilhar, escolha "Qualquer pessoa com o link" como leitor e cole esse link no AVA.</p>
+      </div>
+    </div>
+
+    <aside class="config inspector vidro" aria-label="Ajustes da gravação">
+      <div class="secao">
+        <h3>Legenda da apresentação</h3>
+        <label class="campo"><span>Nome</span><input type="text" id="cfgNome" autocomplete="name"></label>
+        <label class="campo"><span>Curso</span><input type="text" id="cfgCurso"></label>
+      </div>
+      <div class="secao">
+        <h3>Avanço entre os termos</h3>
+        <div class="opcao-seg" role="radiogroup" aria-label="Avanço">
+          <label><input type="radio" name="avanco" value="auto"> Automático</label>
+          <label><input type="radio" name="avanco" value="manual"> Manual</label>
+        </div>
+        <label class="linha" for="cfgSegIntro"><span>Apresentação (s)</span><span class="stepper"><button type="button" data-step="-1" aria-label="Menos" tabindex="-1">−</button><input type="number" id="cfgSegIntro" min="3" max="120"><button type="button" data-step="1" aria-label="Mais" tabindex="-1">+</button></span></label>
+        <label class="linha" for="cfgSegTermo"><span>Cada sinal (s)</span><span class="stepper"><button type="button" data-step="-1" aria-label="Menos" tabindex="-1">−</button><input type="number" id="cfgSegTermo" min="2" max="60"><button type="button" data-step="1" aria-label="Mais" tabindex="-1">+</button></span></label>
+        <label class="linha" for="cfgSegFim"><span>Encerramento (s)</span><span class="stepper"><button type="button" data-step="-1" aria-label="Menos" tabindex="-1">−</button><input type="number" id="cfgSegFim" min="2" max="60"><button type="button" data-step="1" aria-label="Mais" tabindex="-1">+</button></span></label>
+        <p class="fonte" style="margin:8px 0 0">No manual, avance com <kbd>Espaço</kbd>, <kbd>→</kbd> ou passador de slides. Segurar a tecla não repete.</p>
+      </div>
+      <div class="secao">
+        <h3>Posição da legenda</h3>
+        <div class="opcao-seg" role="radiogroup" aria-label="Posição da legenda">
+          <label><input type="radio" name="pos" value="topo"> Em cima</label>
+          <label><input type="radio" name="pos" value="baixo"> Embaixo</label>
+        </div>
+      </div>
+      <div class="secao">
+        <h3>Opções</h3>
+        <label><input type="checkbox" class="switch" id="cfgAudio"> Gravar som do microfone</label>
+        <label><input type="checkbox" class="switch" id="cfgCanto"> Vídeo de referência no canto (só na tela)</label>
+      </div>
+      <div class="secao secao-fim">
+        <div class="botoes-rec">
+          <button id="btnEnsaiar" type="button">Ensaiar sem gravar</button>
+          <button id="btnGravar" class="rec" type="button">● Gravar</button>
+        </div>
+        <p class="fonte" id="duracaoEst" style="text-align:center"></p>
+        <div class="aviso" id="avisoGravar" aria-live="polite" hidden></div>
+        <p class="fonte">A legenda entra no vídeo gravado. A tela mostra você espelhado, mas o arquivo sai sem espelho, como o tutor precisa ver. Durante a gravação não troque de aba nem minimize a janela. Para parar antes do fim, use ■ Parar ou aperte <kbd>Esc</kbd> duas vezes.</p>
+        <button id="btnDesligarCam" class="texto" type="button" hidden>Desligar câmera e microfone</button>
+      </div>
+    </aside>
+  </section>
+</main>
+</div>
+
+<script>
+'use strict';
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+
+/* ---------- dados ---------- */
+const V_INES = 'https://dicionario.ines.gov.br/public/media/palavras/videos/';
+const V_STS = 'https://media.spreadthesign.com/video/mp4/14/';
+const V_IFBA = 'https://infolibras.ifbaseabra.edu.br/storage/img/';
+const V_UTFPR = 'https://tecnalibras.github.io/assets/video/';
+
+const FONTES = {
+  ines: { nome: 'Dicionário da Língua Brasileira de Sinais (INES)', curto: 'Dicionário INES', url: 'https://dicionario.ines.gov.br/' },
+  sts: { nome: 'Spread the Sign, Libras do Brasil', curto: 'Spread the Sign (Brasil)', url: 'https://www.spreadthesign.com/pt.br/' },
+  ifba: { nome: 'Glossário de informática Infolibras, IFBA campus Seabra', curto: 'Glossário IFBA Seabra', url: 'https://infolibras.ifbaseabra.edu.br/' },
+  utfpr: { nome: 'Sinais na Libras – Área de Tecnologia (REA da UTFPR, DAELN-CT)', curto: 'UTFPR – Sinais na Libras', url: 'https://tecnalibras.github.io/' }
+};
+
+const NOTA_IFBA = 'Neste vídeo a palavra é soletrada antes do sinal. "Só o sinal" repete apenas a parte do sinal, e "Vídeo inteiro" mostra tudo.';
+
+const SINAIS = {
+  computador: { termo: 'COMPUTADOR', fonte: 'ines', verbete: 'COMPUTADOR', video: V_INES + 'computadorSm_Prog001.mp4',
+    acepcao: 'Máquina eletrônica que, mediante programas preestabelecidos, é capaz de armazenar, processar, receber e enviar dados e realizar diversos tipos de operação.' },
+  internet: { termo: 'INTERNET', fonte: 'ines', verbete: 'INTERNET', video: V_INES + 'internetSm_Prog001.mp4',
+    acepcao: 'Rede de computadores multicêntrica, pública e de âmbito internacional, que possibilita a transmissão de dados e tem funções de correio eletrônico para usuários em todo o mundo.',
+    nota: '2ª fonte, não conferida quadro a quadro: UTFPR internet.mp4 (https://tecnalibras.github.io/assets/video/internet.mp4).' },
+  software: { termo: 'SOFTWARE', fonte: 'sts', verbete: 'Software', video: V_STS + '679114.mp4', pagina: 'https://www.spreadthesign.com/pt.br/word/4491/software/0/',
+    acepcao: 'Verbete "Software", vídeo em Libras do Brasil.',
+    nota: 'O verbete tem duas variações e esta é a 1 (679114.mp4, 3,4 s). A variação 2 é 679115.mp4 (2,88 s, outra sinalizante, sinal diferente). No vídeo, faça só uma.' },
+  hardware: { termo: 'HARDWARE', fonte: 'sts', verbete: 'hardware', video: V_STS + '302265.mp4', pagina: 'https://www.spreadthesign.com/pt.br/word/4492/hardware/0/',
+    acepcao: 'Verbete "hardware", vídeo em Libras do Brasil. Mesma fonte que SOFTWARE (Spread the Sign, Libras do Brasil); sinalizantes e configurações de mão diferentes, não foram gravados como par.',
+    nota: '2ª fonte, não conferida: UTFPR tem verbete Hardware só em YouTube (OwhC7VGYw9E); não há hardware.mp4 no repositório.' },
+  programacao: { termo: 'PROGRAMAÇÃO', fonte: 'sts', verbete: 'programação de computadores', video: V_STS + '556620.mp4', pagina: 'https://www.spreadthesign.com/pt.br/word/4584/programacao-de-computadores/0/',
+    acepcao: 'Verbete "programação de computadores", vídeo em Libras do Brasil.', nota: 'No INES, "programação" só existe no sentido de roteiro de atividades ou de programa de TV, que é outro sinal.' },
+  digitar: { termo: 'DIGITAR', fonte: 'ines', verbete: 'DIGITAR', video: V_INES + 'digitarSm_Prog001.mp4',
+    acepcao: 'Remeter dados para um equipamento, por meio de toques no teclado.' },
+  algoritmo: { termo: 'ALGORITMO', fonte: 'ifba', credito: 'Conectados em Libras', verbete: 'Algoritmo', video: V_IFBA + '1723482862.mp4', trecho: [9.0, 16.3],
+    pagina: 'https://infolibras.ifbaseabra.edu.br/sinais?categoria_id=4',
+    acepcao: 'Conjunto de instruções passo a passo para resolver um problema ou realizar uma tarefa.',
+    nota: NOTA_IFBA + ' O vídeo executa o sinal duas vezes (parte junto ao rosto + varredura da mão direita sobre a palma esquerda); o trecho pega só a primeira execução. Segunda execução: 16,5–21,3 s.' },
+  bancodedados: { termo: 'BANCO DE DADOS', fonte: 'ifba', credito: 'Sinais Diários de Libras', verbete: 'Banco de Dados', video: V_IFBA + '1725296667.mp4', trecho: [9.8, 13.4],
+    pagina: 'https://infolibras.ifbaseabra.edu.br/sinais?categoria_id=2&page=2',
+    acepcao: 'Sistema de software usado para gerenciar e organizar dados.', nota: NOTA_IFBA + ' Não junte BANCO + DADO do INES: lá, BANCO é assento ou banco de dinheiro, e DADO é o de jogar.' },
+  servidor: { termo: 'SERVIDOR', fonte: 'ifba', credito: 'Sinalário LSB', verbete: 'Servidor', video: V_IFBA + '1725295422.mp4', trecho: [7.6, 10.5],
+    pagina: 'https://infolibras.ifbaseabra.edu.br/sinais?categoria_id=3',
+    acepcao: 'Computador que fornece serviços e recursos para outros computadores em uma rede.',
+    nota: NOTA_IFBA + ' Não é o mesmo sinal de "servidor público". Fonte creditada pelo IFBA: Sinalário LSB (não localizamos a instituição ou canal por trás desse nome).' },
+  ciberseguranca: { termo: 'CIBERSEGURANÇA', legenda: 'CIBERSEGURANÇA (segurança da informação)', equivale: 'SEGURANÇA DA INFORMAÇÃO', fonte: 'utfpr', verbete: 'Cibersegurança',
+    video: V_UTFPR + 'ciberseguranca.mp4', pagina: 'https://tecnalibras.github.io/palavras/c/ciberseguranca.html',
+    acepcao: 'Procedimentos, práticas e tecnologias que visam proteger computadores e servidores, dispositivos móveis, sistemas eletrônicos, redes e dados contra ataques maliciosos. A própria página diz: também chamada de segurança da tecnologia da informação.',
+    nota: 'Sinal único, sem soletração: mãos sobem em ~0,8 s, sinal mantido ~1,2–2,8 s (punho esquerdo à frente do peito, indicador direito em pé apoiado sobre ele), neutro a partir de ~3,2 s do clipe de 3,9 s. Referência em vídeo do projeto no YouTube: AbeeARy65Ms.' },
+
+  /* reserva */
+  mouse: { termo: 'MOUSE', fonte: 'ines', verbete: 'MOUSE', video: V_INES + 'mouseSm_Prog001.mp4',
+    acepcao: 'Dispositivo periférico usado para controlar a posição do cursor na tela do computador. Indica e seleciona opções, ícones e outros elementos de interface.' },
+  teclado: { termo: 'TECLADO', fonte: 'ines', verbete: 'TECLADO', video: V_INES + 'tecladoSm_Prog001.mp4',
+    acepcao: 'Conjunto de teclas; mecanismo existente em instrumentos musicais como o piano ou o acordeão, e em computadores.' },
+  monitor: { termo: 'MONITOR', fonte: 'ines', verbete: 'MONITOR1', video: V_INES + 'monitor1Sm_Prog001.mp4',
+    acepcao: 'Periférico de saída de um computador, dotado de tela que exibe informações da máquina para o usuário; vídeo.', nota: 'No INES, MONITOR2 é o monitor de sala de aula, que é outro sinal.' },
+  impressora: { termo: 'IMPRESSORA', fonte: 'ines', verbete: 'IMPRESSORA', video: V_INES + 'impressoraSm_Prog001.mp4',
+    acepcao: 'Máquina que realiza impressão gráfica.' },
+  salvar: { termo: 'SALVAR', fonte: 'ines', verbete: 'SALVAR1', video: V_INES + 'salvar1Sm_Prog001.mp4',
+    acepcao: 'Gravar; registrar as informações digitadas no computador, em pequeno disco magnético.', nota: 'SALVAR2 (escapar de um perigo) é outro sinal.' },
+  rede: { termo: 'REDE', fonte: 'ines', verbete: 'REDE3', video: V_INES + 'rede3Sm_Prog001.mp4',
+    acepcao: 'Sistema de comunicação por meio de computadores e periféricos interligados.',
+    nota: 'O vídeo é R-E-D-E soletrado (~0,8–1,4 s) seguido do sinal ESPALHAR (~1,6–2,9 s), conforme a glosa do INES (R-E-D-E^ESPALHAR). Não é sinal lexical próprio de REDE; usar só como último recurso. REDE1 (de dormir) e REDE2 (de vôlei) são outros sinais.' },
+  informatica: { termo: 'INFORMÁTICA', fonte: 'ines', verbete: 'INFORMÁTICA', video: V_INES + 'informaticaSm_Prog001.mp4',
+    acepcao: 'Conjunto de procedimentos relacionados com a coleta, manipulação, classificação, armazenamento e recuperação de dados, por meio de computadores.' },
+  antivirus: { termo: 'ANTIVÍRUS', fonte: 'ifba', credito: 'Master Link Libras', verbete: 'Antivírus', video: V_IFBA + '1725296585.mp4', trecho: [6.9, 8.9],
+    pagina: 'https://infolibras.ifbaseabra.edu.br/sinais?categoria_id=2&page=2',
+    acepcao: 'Software que detecta e remove programas maliciosos do computador.', nota: NOTA_IFBA },
+  firewall: { termo: 'FIREWALL', fonte: 'ifba', credito: 'Jackson IFBA', verbete: 'Firewall', video: V_IFBA + '1725987343.mp4', trecho: [8.3, 11.7],
+    pagina: 'https://infolibras.ifbaseabra.edu.br/sinais?categoria_id=3&page=3',
+    acepcao: 'Sistema de segurança que monitora e controla o tráfego de rede com base em regras de segurança.',
+    nota: NOTA_IFBA + ' Sinal de uma mão em configuração de três dedos (W) com rotação do punho, ~9,3–11,3 s.' },
+  bug: { termo: 'BUG', fonte: 'utfpr', verbete: 'Bug', video: V_UTFPR + 'bug.mp4', pagina: 'https://tecnalibras.github.io/palavras/b/bug.html',
+    acepcao: 'Erro ou falha em um programa de computador.',
+    nota: 'Sinal composto sem soletração: indicador toca o nariz (~0,5–1,0 s) e depois os dois punhos à frente do peito alternam (~1,5–2,5 s); neutro a partir de ~2,75 s do clipe de 3,2 s. Referência YouTube do projeto: 01BAbCfAn6M.' },
+  senha: { termo: 'SENHA', fonte: 'ines', verbete: 'SENHA', video: V_INES + 'senhaSm_Prog001.mp4',
+    acepcao: 'Gesto, sinal, palavra, número ou qualquer outra forma de comunicação combinada entre duas ou mais pessoas, para qualquer fim. Exemplo do INES: "Eu esqueci minha senha do banco."',
+    nota: 'O vídeo do INES é S-E-N-H-A soletrado seguido do sinal SEGREDO (glosa do próprio INES: S-E-N-H-A^SEGREDO). Não é sinal lexical de TI; usar só como último recurso.' },
+
+  /* apresentação e encerramento */
+  ola: { termo: 'OLÁ', fonte: 'ines', verbete: 'OLÁ', video: V_INES + 'olaSm_Prog001.mp4', acepcao: 'Saudação; cumprimento; chamamento.' },
+  nome: { termo: 'NOME', fonte: 'ines', verbete: 'NOME', video: V_INES + 'nomeSm_Prog001.mp4',
+    acepcao: 'Identidade; forma pela qual a pessoa é chamada.', nota: 'Exemplo do INES: NOME ME@ A-L-E-X-A-N-D-R-E ("Meu nome é Alexandre").' },
+  meu: { termo: 'MEU', fonte: 'ines', verbete: 'MEU1', video: V_INES + 'meu1Sm_Prog001.mp4', acepcao: 'O que é relacionado, pertencente ou próprio da pessoa que fala.' },
+  eu: { termo: 'EU', fonte: 'ines', verbete: 'EU', video: V_INES + 'euSm_Prog001.mp4', acepcao: 'A entidade ou a individualidade da pessoa que fala.' },
+  estudar: { termo: 'ESTUDAR', fonte: 'ines', verbete: 'ESTUDAR', video: V_INES + 'estudarSm_Prog001.mp4', acepcao: 'Frequentar um curso; estar na condição de aluno.' },
+  curso: { termo: 'CURSO', fonte: 'ines', verbete: 'CURSO', video: V_INES + 'cursoSm_Prog001.mp4',
+    acepcao: 'Conjunto de disciplinas, desenvolvido por escolas, classes, faculdades e outras instituições de ensino.', nota: 'Exemplo do INES: CURSO INFORMÁTICA EU FORMAR JÁ ("Eu já fiz curso de informática").' },
+  tecnologia: { termo: 'TECNOLOGIA', fonte: 'ines', verbete: 'TECNOLOGIA', video: V_INES + 'tecnologiaSm_Prog001.mp4',
+    acepcao: 'Conjunto de conhecimentos, especialmente de princípios científicos, que se aplicam a um determinado ramo de atividade.' },
+  informacao: { termo: 'INFORMAÇÃO', fonte: 'ines', verbete: 'INFORMAÇÃO', video: V_INES + 'informacaoSm_Prog001.mp4', acepcao: 'Transmissão de notícias; comunicação.' },
+  obrigado: { termo: 'OBRIGADO', fonte: 'ines', verbete: 'OBRIGADO1', video: V_INES + 'obrigado1Sm_Prog001.mp4',
+    acepcao: 'Grato; agradecido.', nota: 'OBRIGADO2 (ter o dever de fazer algo) é outro sinal.' }
+};
+/* alfabeto manual do INES: uma entrada por letra, gerada sob demanda */
+function letra(ch) {
+  const k = 'l' + ch;
+  if (!SINAIS[k]) SINAIS[k] = { termo: ch, fonte: 'ines', verbete: ch, video: V_INES + ch.toLowerCase() + 'Sm_Prog001.mp4', acepcao: `Letra ${ch} do alfabeto manual.` };
+  return k;
+}
+'VICTOR'.split('').forEach(letra);
+
+const PADRAO = ['computador', 'internet', 'software', 'hardware', 'programacao', 'digitar', 'algoritmo', 'bancodedados', 'servidor', 'ciberseguranca'];
+const ORIGINAL = ['COMPUTADOR', 'INTERNET', 'SOFTWARE', 'HARDWARE', 'PROGRAMAÇÃO', 'CÓDIGO', 'ALGORITMO', 'BANCO DE DADOS', 'SERVIDOR', 'SEGURANÇA DA INFORMAÇÃO'];
+const RESERVA = ['mouse', 'teclado', 'monitor', 'impressora', 'salvar', 'informatica', 'antivirus', 'firewall', 'bug', 'rede', 'senha'];
+const FRASE_GLOSA = 'OLÁ. NOME MEU V-I-C-T-O-R. EU ESTUDAR CURSO TECNOLOGIA INFORMAÇÃO.';
+/* mesmo termo do roteiro com outro nome (ex.: CIBERSEGURANÇA = SEGURANÇA DA INFORMAÇÃO) não conta como troca */
+const trocado = (s, i) => s.termo !== ORIGINAL[i] && s.equivale !== ORIGINAL[i];
+const legendaDe = s => s.legenda || s.termo;
+
+const APRESENTACAO = [
+  { chave: 'frase', rotulo: 'Frase completa', glosa: FRASE_GLOSA,
+    seq: ['ola', 'nome', 'meu', 'lV', 'lI', 'lC', 'lT', 'lO', 'lR', 'eu', 'estudar', 'curso', 'tecnologia', 'informacao'],
+    acepcao: 'Sugestão montada com sinais do INES, na ordem dos exemplos do próprio dicionário. Se o módulo ensinou outra forma de se apresentar, use a do módulo.' },
+  { chave: 'ola', id: 'ola' },
+  { chave: 'nome', id: 'nome' },
+  { chave: 'meu', id: 'meu' },
+  { chave: 'datilologia', rotulo: 'V-I-C-T-O-R', glosa: 'V-I-C-T-O-R', seq: ['lV', 'lI', 'lC', 'lT', 'lO', 'lR'],
+    acepcao: 'Seu nome soletrado no alfabeto manual (datilologia). Na gravação, soletre num ritmo contínuo, com a mão parada no mesmo lugar, sem baixar entre as letras.' },
+  { chave: 'eu', id: 'eu' },
+  { chave: 'estudar', id: 'estudar' },
+  { chave: 'curso', id: 'curso' },
+  { chave: 'tecnologia', id: 'tecnologia' },
+  { chave: 'informacao', id: 'informacao' },
+  { chave: 'obrigado', id: 'obrigado', rotulo: 'OBRIGADO (encerramento)' }
+];
+/* o nome soletrado segue o campo Nome: só letras A–Z viram vídeo do INES */
+function primeiroNomeSoletrado() {
+  const p = (estado.nome || '').trim().split(/\s+/)[0] || '';
+  return p.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z]/g, '').split('').join('-');
+}
+function glosaApresentacao() { return FRASE_GLOSA.replace('V-I-C-T-O-R', primeiroNomeSoletrado() || 'V-I-C-T-O-R'); }
+function sincronizarNome() {
+  const sol = primeiroNomeSoletrado() || 'V-I-C-T-O-R';
+  const letras = sol.split('-').map(letra);
+  APRESENTACAO[0].glosa = glosaApresentacao();
+  APRESENTACAO[0].seq = ['ola', 'nome', 'meu', ...letras, 'eu', 'estudar', 'curso', 'tecnologia', 'informacao'];
+  const d = APRESENTACAO[4]; d.rotulo = sol; d.glosa = sol; d.seq = letras;
+  const fg = $('#fichaGlosa'); if (fg) fg.textContent = APRESENTACAO[0].glosa;
+}
+
+const CHECAGEM = [
+  'Meu nome e meu curso aparecem na apresentação.',
+  'Apresentei exatamente 10 termos específicos de TI.',
+  'Os sinais são inéditos em relação às videoaulas do módulo.',
+  'Cada termo aparece como legenda no vídeo.',
+  'As mãos, o rosto e as expressões corporais estão visíveis.',
+  'A imagem e o áudio estão claros.',
+  'O vídeo foi enviado ao Google Drive ou outra plataforma indicada.',
+  'A permissão foi configurada para que o tutor possa visualizar.',
+  'Copiei somente o link público para a entrega no AVA.'
+];
+
+/* ---------- estado ---------- */
+const CHAVE_LS = 'estudio-libras-ti-v2';
+const CHAVE_LS_V1 = 'estudio-libras-ti-v1';
+const PADRAO_V1 = ['computador', 'internet', 'software', 'hardware', 'programacao', 'digitar', 'algoritmo', 'bancodedados', 'servidor', 'senha'];
+let avisoEstadoTxt = '';
+const estadoPadrao = () => ({
+  slots: PADRAO.slice(), dom: {}, chk: {}, aula: {}, envio: {}, vel: 0.75, trecho: true, atual: 'computador', dicaOk: false,
+  nome: 'Victor Pedroso Duma', curso: 'Tecnologia da Informação', avanco: 'auto', segIntro: 18, segTermo: 6, segFim: 5, pos: 'topo', audio: true, canto: true
+});
+function slotsValidos(s) { return s && Array.isArray(s.slots) && s.slots.length === 10 && s.slots.every(id => SINAIS[id]) && new Set(s.slots).size === 10; }
+function carregarEstado() {
+  try {
+    let s = JSON.parse(localStorage.getItem(CHAVE_LS) || 'null');
+    let origem = 'v2';
+    if (!s) { s = JSON.parse(localStorage.getItem(CHAVE_LS_V1) || 'null'); origem = 'v1'; }
+    if (!s) return estadoPadrao();
+    if (origem === 'v1' && JSON.stringify(s.slots) === JSON.stringify(PADRAO_V1)) s.slots = PADRAO.slice();
+    if (!slotsValidos(s)) {
+      avisoEstadoTxt = 'A lista de sinais salva não bate com esta versão da página; a lista voltou ao padrão. Nome, checklist e "já domino" foram mantidos.';
+      delete s.slots;
+      if (s.atual && !SINAIS[s.atual] && !['frase', 'datilologia'].includes(s.atual)) delete s.atual;
+    } else if (origem === 'v1') {
+      avisoEstadoTxt = 'Seu progresso da versão anterior foi importado.';
+    }
+    return Object.assign(estadoPadrao(), s);
+  } catch (e) { /* armazenamento indisponível: segue com o padrão */ }
+  return estadoPadrao();
+}
+let estado = carregarEstado();
+function salvar() { try { localStorage.setItem(CHAVE_LS, JSON.stringify(estado)); } catch (e) { /* sem persistência */ } }
+
+/* ---------- itens ---------- */
+function itensDez() { return estado.slots.map((id, i) => ({ chave: id, id, slot: i, rotulo: `${i + 1}. ${SINAIS[id].termo}` })); }
+function reservasLivres() { return [...new Set([...RESERVA, ...PADRAO])].filter(id => !estado.slots.includes(id)); }
+function todosItens() { return [...itensDez(), ...APRESENTACAO, ...reservasLivres().map(id => ({ chave: id, id }))]; }
+function itemPorChave(k) { return todosItens().find(it => it.chave === k) || itensDez()[0]; }
+function rotuloDe(it) { return it.rotulo || SINAIS[it.id].termo; }
+
+/* ---------- player de referência ---------- */
+class Player {
+  constructor(el, aviso) {
+    this.el = el; this.item = null; this.k = 0; this.ativo = false; this.aviso = aviso || (() => {});
+    el.addEventListener('loadedmetadata', () => {
+      const s = this.sinal();
+      if (s && this.usaTrecho(s)) el.currentTime = s.trecho[0];
+      el.playbackRate = estado.vel;
+      if (this.ativo) el.play().catch(() => {});
+    });
+    el.addEventListener('ended', () => this.fim());
+    el.addEventListener('error', () => this.aviso('erro', this.sinal()));
+    const passouDoTrecho = () => {
+      const s = this.sinal();
+      if (s && this.usaTrecho(s) && !el.paused && el.currentTime >= s.trecho[1]) this.fim();
+    };
+    const vigia = () => { passouDoTrecho(); requestAnimationFrame(vigia); };
+    requestAnimationFrame(vigia);
+    el.addEventListener('timeupdate', passouDoTrecho);
+  }
+  ids() { return this.item ? (this.item.seq || [this.item.id]) : []; }
+  sinal() { const ids = this.ids(); return ids.length ? SINAIS[ids[this.k]] : null; }
+  usaTrecho(s) { return !!(s && s.trecho && estado.trecho); }
+  tocar(item) { this.item = item; this.k = 0; this.ativo = true; this.carregar(); }
+  pausar() { this.ativo = false; this.el.pause(); }
+  retomar() { this.ativo = true; this.el.play().catch(() => {}); }
+  carregar() {
+    const s = this.sinal(); if (!s) return;
+    this.el.loop = false;
+    this.el.src = s.video;
+    this.aviso('carregou', s);
+  }
+  fim() {
+    const ids = this.ids();
+    if (ids.length > 1) { this.k = (this.k + 1) % ids.length; this.carregar(); return; }
+    const s = this.sinal();
+    this.el.currentTime = this.usaTrecho(s) ? s.trecho[0] : 0;
+    if (this.ativo) this.el.play().catch(() => {});
+  }
+}
+
+const refPlayer = new Player($('#refVideo'), (ev, s) => {
+  const erro = $('#refErro');
+  if (ev === 'carregou') {
+    erro.hidden = true;
+    const ids = refPlayer.ids();
+    $('#refRotulo').textContent = ids.length > 1 ? `${s.termo} · ${refPlayer.k + 1} de ${ids.length}` : `Vídeo da fonte · ${FONTES[s.fonte].curto}`;
+  } else if (ev === 'erro' && s) {
+    erro.textContent = 'O vídeo não carregou (sem internet ou a fonte mudou o endereço). ';
+    const a = document.createElement('a');
+    a.href = s.pagina || FONTES[s.fonte].url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Abrir na fonte ↗';
+    erro.append(a); erro.hidden = false;
+  }
+});
+const cantoPlayer = new Player($('#cantoVideo'));
+
+/* ---------- aba Estudar ---------- */
+function renderLista() {
+  const L = $('#lista'); L.textContent = '';
+  const grupo = (titulo, itens, recolhido) => {
+    let cont = L;
+    if (recolhido) {
+      const d = document.createElement('details');
+      d.open = itens.some(it => it.chave === estado.atual);
+      const s = document.createElement('summary'); s.textContent = titulo; d.appendChild(s);
+      L.appendChild(d); cont = d;
+    } else {
+      const h = document.createElement('h3'); h.textContent = titulo; L.appendChild(h);
+    }
+    for (const it of itens) {
+      const b = document.createElement('button'); b.type = 'button';
+      if (it.chave === estado.atual) { b.classList.add('atual'); b.setAttribute('aria-current', 'true'); }
+      const n = document.createElement('span'); n.textContent = rotuloDe(it);
+      const st = document.createElement('span'); st.className = 'st';
+      if (it.slot !== undefined && estado.aula[it.id]) { st.textContent = '⚠ trocar'; st.classList.add('aula'); }
+      else if (estado.dom[it.chave]) { st.textContent = '✓'; st.classList.add('ok'); }
+      b.append(n, st);
+      b.addEventListener('click', () => selecionar(it.chave));
+      cont.appendChild(b);
+    }
+  };
+  grupo('Os 10 sinais', itensDez());
+  grupo('Apresentação e encerramento', APRESENTACAO);
+  grupo('Reserva (se algum já caiu nas videoaulas)', reservasLivres().map(id => ({ chave: id, id })), true);
+  // na faixa horizontal (≤979px) o item atual fica fora da área na maior parte das vezes; ← → precisam de feedback visível.
+  // Só aí: na sidebar vertical o scrollIntoView mexeria na rolagem da própria lista e da página.
+  if (matchMedia('(max-width:979px)').matches) { const a = $('.lista button.atual'); if (a) a.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+}
+
+function renderInfo(it) {
+  const s = it.id ? SINAIS[it.id] : null;
+  const base = s || SINAIS[it.seq[0]];
+  const F = FONTES[base.fonte];
+  $('#infoTermo').textContent = rotuloDe(it);
+  const g = $('#infoGlosa'); g.hidden = !it.glosa; g.textContent = it.glosa || '';
+  $('#infoAcepcao').textContent = it.acepcao || ('Sentido na fonte: ' + s.acepcao);
+  $('#infoFonte').textContent = 'Fonte: ' + F.nome + (s && s.credito ? ` · sinal de: ${s.credito}` : '') + (s && s.fonte === 'ines' ? ` · verbete ${s.verbete}` : '');
+  const a = $('#linkFonte');
+  a.href = (s && s.pagina) || F.url;
+  a.textContent = s && s.fonte === 'ines' ? `Abrir no INES (busque "${s.verbete}") ↗` : 'Abrir na fonte ↗';
+  const n = $('#infoNota'); const nota = (s && s.nota) || ''; n.hidden = !nota; n.textContent = nota;
+  $('#trechoBtns').hidden = !(s && s.trecho);
+  const c = estado.chk[it.chave] || [];
+  $$('#params input').forEach(inp => { inp.checked = !!c[+inp.dataset.p]; });
+  marcarDomino();
+}
+
+function selecionar(chave) {
+  const it = itemPorChave(chave);
+  estado.atual = it.chave; salvar();
+  renderLista(); renderInfo(it);
+  refPlayer.tocar(it);
+  if (aba !== 'estudar') refPlayer.pausar();
+}
+function andar(d) {
+  const lista = todosItens();
+  const i = Math.max(0, lista.findIndex(it => it.chave === estado.atual));
+  selecionar(lista[Math.min(lista.length - 1, Math.max(0, i + d))].chave);
+}
+function marcarDomino() {
+  const b = $('#btnDomino'); const on = !!estado.dom[estado.atual];
+  b.classList.toggle('ok', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '✓ Já domino este sinal' : 'Já domino este sinal';
+}
+function alternarDomino() {
+  const k = estado.atual;
+  if (estado.dom[k]) delete estado.dom[k]; else estado.dom[k] = true;
+  salvar(); marcarDomino(); renderLista(); atualizarProgresso();
+  if (estado.dom[k]) comemorar($('#btnDomino'), estado.slots.includes(k) && estado.slots.every(id => estado.dom[id]));
+}
+/* "Já domino": leva de bolhas saindo do botão + brilho varrendo o progresso; com os 10 dominados, leva maior */
+function comemorar(origem, completo) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const p = $('.progresso');
+  p.classList.remove('brilho'); void p.offsetWidth; p.classList.add('brilho');
+  p.addEventListener('animationend', () => p.classList.remove('brilho'), { once: true });
+  if (!origem) return;
+  const r = origem.getBoundingClientRect();
+  const n = completo ? 36 : 14;
+  for (let i = 0; i < n; i++) {
+    const b = document.createElement('span'); b.className = 'festa';
+    const s = 8 + Math.random() * (completo ? 30 : 20);
+    b.style.cssText = `left:${r.left + Math.random() * r.width}px;top:${r.top + r.height / 2}px;--s:${s}px;` +
+      `--dx:${(Math.random() - .5) * (completo ? 360 : 160)}px;--dy:${120 + Math.random() * (completo ? 380 : 180)}px;` +
+      `--t:${1.1 + Math.random() * .9}s;--atraso:${Math.random() * .25}s`;
+    b.addEventListener('animationend', () => b.remove());
+    document.body.appendChild(b);
+  }
+}
+function atualizarProgresso() {
+  const n = estado.slots.filter(id => estado.dom[id]).length;
+  const p = $('#progTxt'); p.textContent = '';
+  const longo = document.createElement('span'); longo.className = 'prog-longo'; longo.textContent = `${n} de 10 dominados`;
+  const curto = document.createElement('span'); curto.className = 'prog-curto'; curto.textContent = `${n}/10`;
+  p.append(longo, curto);
+  $('#progBarra').style.width = (n * 10) + '%';
+}
+function marcarPressionado(b, on) { b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }
+function setVel(v) {
+  estado.vel = v; salvar();
+  refPlayer.el.playbackRate = v; cantoPlayer.el.playbackRate = v;
+  $$('#velBtns button').forEach(b => marcarPressionado(b, +b.dataset.vel === v));
+}
+function marcarTrecho() { $$('#trechoBtns button').forEach(b => marcarPressionado(b, (b.dataset.trecho === '1') === estado.trecho)); }
+function alternarPausa() { if (refPlayer.el.paused) refPlayer.retomar(); else refPlayer.el.pause(); }
+
+/* ---------- câmera ---------- */
+let camStream = null, micStream = null, camPromise = null, micPromise = null;
+function cameraPerdida() {
+  camStream = null; camPromise = null;
+  $$('video.camfeed').forEach(v => { v.srcObject = null; });
+  document.body.classList.remove('cam-on');
+  $$('.msg-camera').forEach(m => { m.textContent = 'A câmera foi desligada ou tomada por outro programa. Ligue de novo.'; });
+  $('#btnDesligarCam').hidden = true;
+  if (rodada) {
+    /* na gravação o aviso é guardado: parar() → gravador.stop() → finalizar() reescreve #avisoGravar com a lista de problemas */
+    if (rodada.gravar) motivos.push('A câmera foi perdida durante a gravação; o vídeo foi encerrado nesse ponto.');
+    else aviso('A câmera foi perdida durante a rodada.');
+    parar();
+  } else prepararGravar();
+}
+async function ligarCamera() {
+  if (camStream) return camStream;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('SEM_API');
+  if (!camPromise) {
+    camPromise = navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }, audio: false })
+      .catch(e => { camPromise = null; throw e; });
+  }
+  const s = await camPromise;
+  if (camStream) return camStream;
+  camStream = s;
+  const trilha = s.getVideoTracks()[0];
+  if (trilha) trilha.addEventListener('ended', () => { if (camStream === s) cameraPerdida(); });
+  $$('video.camfeed').forEach(v => { v.srcObject = camStream; v.play().catch(() => {}); });
+  document.body.classList.add('cam-on');
+  $$('.msg-camera').forEach(m => { m.textContent = ''; });
+  $('#btnDesligarCam').hidden = false;
+  prepararGravar();
+  return camStream;
+}
+async function ligarMicrofone() {
+  if (micStream) return micStream;
+  if (!micPromise) {
+    micPromise = navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false })
+      .catch(e => { micPromise = null; throw e; });
+  }
+  const s = await micPromise;
+  if (micStream) return micStream;
+  micStream = s;
+  const t = s.getAudioTracks()[0];
+  if (t) t.addEventListener('ended', () => { if (micStream === s) { micStream = null; micPromise = null; if (rodada && rodada.gravar) { const m = 'O microfone parou no meio da gravação; o som pode ficar cortado.'; motivos.push(m); aviso(m); } } });
+  return micStream;
+}
+function desligarCamera() {
+  if (rodada) return;
+  [camStream, micStream].forEach(s => s && s.getTracks().forEach(t => t.stop()));
+  camStream = null; micStream = null; camPromise = null; micPromise = null;
+  $$('video.camfeed').forEach(v => { v.srcObject = null; });
+  document.body.classList.remove('cam-on');
+  $('#btnDesligarCam').hidden = true;
+  prepararGravar();
+}
+function msgErroCamera(e) {
+  const n = e && e.name;
+  if (e && e.message === 'SEM_API') return 'Este navegador não liberou a câmera para arquivos do computador. Abra este arquivo no Chrome ou no Edge.';
+  if (n === 'NotAllowedError' || n === 'SecurityError') return 'Permissão negada. Clique no ícone de câmera na barra de endereço, permita e tente de novo.';
+  if (n === 'NotFoundError' || n === 'OverconstrainedError') return 'Nenhuma câmera encontrada. Dá pra estudar só pelos vídeos, na frente de um espelho, e gravar pelo celular. Nesse caso a legenda entra no editor de vídeo.';
+  if (n === 'NotReadableError' || n === 'AbortError') return 'A câmera está em uso por outro programa (Teams, Zoom, outra aba). Feche-o e tente de novo.';
+  return 'Não consegui abrir a câmera (' + (n || e) + ').';
+}
+
+/* ---------- aba Ficha ---------- */
+function opcoesTroca(i) {
+  const atual = estado.slots[i];
+  return [...new Set([PADRAO[i], ...RESERVA, ...PADRAO])].filter(id => id === atual || !estado.slots.includes(id));
+}
+function renderFicha() {
+  const corpo = $('#fichaCorpo'); corpo.textContent = '';
+  estado.slots.forEach((id, i) => {
+    const s = SINAIS[id], F = FONTES[s.fonte];
+    const tr = document.createElement('tr'); if (estado.aula[id]) tr.className = 'alerta';
+    const td = () => { const c = document.createElement('td'); tr.appendChild(c); return c; };
+    const num = document.createElement('span'); num.className = 'num'; num.textContent = String(i + 1); td().append(num);
+    const tNome = td(); const b = document.createElement('b'); b.textContent = s.termo; tNome.append(b);
+    if (trocado(s, i)) { const sm = document.createElement('small'); sm.textContent = 'no lugar de ' + ORIGINAL[i]; tNome.append(sm); }
+    else if (s.equivale) { const sm = document.createElement('small'); sm.className = 'igual'; sm.textContent = '= ' + ORIGINAL[i] + ' (termo do roteiro)'; tNome.append(sm); }
+    if (s.legenda) { const sm = document.createElement('small'); sm.className = 'igual'; sm.textContent = 'legenda: ' + s.legenda; tNome.append(sm); }
+    const tFonte = td(); tFonte.append(F.curto + (s.credito ? ` · sinal de: ${s.credito}` : ''), document.createElement('br'));
+    const a = document.createElement('a'); a.href = s.pagina || F.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = s.fonte === 'ines' ? `abrir e buscar "${s.verbete}" ↗` : 'abrir ↗'; tFonte.append(a);
+    td().textContent = s.acepcao;
+    const tAula = td(); const lab = document.createElement('label'); const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.dataset.aula = id; cb.checked = !!estado.aula[id]; cb.setAttribute('aria-label', 'Já apareceu nas videoaulas: ' + s.termo); lab.append(cb, ' já apareceu'); tAula.append(lab);
+    const tSel = td(); const sel = document.createElement('select'); sel.dataset.slot = String(i); sel.setAttribute('aria-label', `Trocar o termo ${i + 1}, ${s.termo}`);
+    for (const op of opcoesTroca(i)) {
+      const o = document.createElement('option'); o.value = op; o.textContent = `${SINAIS[op].termo} · ${FONTES[SINAIS[op].fonte].curto}`; o.selected = op === id; sel.append(o);
+    }
+    tSel.append(sel);
+    corpo.appendChild(tr);
+  });
+  $('#txtFontes').textContent = textoFontes();
+  renderChecagem();
+}
+function renderChecagem() {
+  const c = $('#checagem'); c.textContent = '';
+  for (const txt of CHECAGEM) {
+    const lab = document.createElement('label'); const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!estado.envio[txt];
+    cb.addEventListener('change', () => { if (cb.checked) estado.envio[txt] = true; else delete estado.envio[txt]; salvar(); });
+    lab.append(cb, txt); c.appendChild(lab);
+  }
+}
+function trocarSlot(i, novo) {
+  const antigo = estado.slots[i]; if (antigo === novo || estado.slots.includes(novo)) return;
+  estado.slots[i] = novo;
+  salvar(); renderFicha(); atualizarProgresso(); prepararGravar();
+  if (estado.atual === antigo) selecionar(novo); else renderLista();
+  const s = $(`select[data-slot="${i}"]`); if (s) s.focus();
+}
+function textoFontes() {
+  const por = { ines: [], sts: [], ifba: [], utfpr: [] };
+  estado.slots.forEach(id => { const s = SINAIS[id]; por[s.fonte].push(s.termo + (s.credito ? ` (sinal: ${s.credito})` : '') + (s.fonte === 'sts' && s.verbete.toLowerCase() !== s.termo.toLowerCase() ? ` (verbete "${s.verbete}")` : '')); });
+  const L = [];
+  L.push(`- Dicionário da Língua Brasileira de Sinais, INES: https://dicionario.ines.gov.br/${por.ines.length ? ' · ' + por.ines.join(', ') : ''} · apresentação: OLÁ, NOME, MEU, EU, ESTUDAR, CURSO, TECNOLOGIA, INFORMAÇÃO, OBRIGADO e alfabeto manual`);
+  if (por.sts.length) L.push(`- Spread the Sign, Libras do Brasil: https://www.spreadthesign.com/pt.br/ · ${por.sts.join(', ')}`);
+  if (por.ifba.length) L.push(`- Glossário de informática Infolibras, IFBA campus Seabra: https://infolibras.ifbaseabra.edu.br/ · ${por.ifba.join(', ')}`);
+  if (por.utfpr.length) L.push(`- Sinais na Libras – Área de Tecnologia, REA da UTFPR (DAELN-CT): https://tecnalibras.github.io/ · ${por.utfpr.join(', ')}`);
+  L.push('- Canal LSBCASMS (CAS/SED-MS), fonte regional indicada no AVA: https://www.youtube.com/@LSBCASMS · consultado, sem vocabulário de TI (7 vídeos: Biologia; História, Artes e Literatura; Filosofia e Sociologia; Língua Portuguesa; Datilologia; Metáforas)');
+  return L.join('\n');
+}
+function gerarRoteiro() {
+  const L = [];
+  L.push('# Roteiro de vídeo — Libras na área de Tecnologia da Informação', '');
+  L.push('## Objetivo da atividade', '', 'Apresentar meu nome, meu curso e 10 sinais inéditos relacionados à área de Tecnologia da Informação.', '');
+  L.push('## Sinais escolhidos', '', '| # | Termo | Fonte | Sentido conferido na fonte |', '|---|---|---|---|');
+  estado.slots.forEach((id, i) => {
+    const s = SINAIS[id], F = FONTES[s.fonte];
+    const troca = trocado(s, i) ? ` (no lugar de ${ORIGINAL[i]})` : (s.equivale ? ` (= ${ORIGINAL[i]})` : '');
+    L.push(`| ${i + 1} | ${s.termo}${troca} | ${F.curto}${s.credito ? ` · sinal de: ${s.credito}` : ''} | ${s.acepcao.replace(/\|/g, '/')} |`);
+  });
+  const trocas = estado.slots.map((id, i) => [ORIGINAL[i], SINAIS[id]]).filter(([o, s], i) => trocado(s, i)).map(([o, s]) => [o, s.termo]);
+  if (trocas.length) {
+    L.push('', '**Trocas feitas:** ' + trocas.map(([o, t]) => `${o} → ${t}`).join('; ') + '.');
+    if (trocas.some(([o]) => o === 'CÓDIGO')) {
+      L.push('', '> CÓDIGO não tem sinal com esse sentido nas fontes consultadas (INES, Spread the Sign, glossário do IFBA, REA da UTFPR e canal LSBCASMS). Montar um sinal por conta própria ou soletrar não valeria como sinal de fonte.');
+    }
+  }
+  const equiv = estado.slots.map((id, i) => [ORIGINAL[i], SINAIS[id]]).filter(([o, s]) => s.equivale === o);
+  equiv.forEach(([o, s]) => L.push('', `> ${o} é apresentado como ${s.termo}: a página da fonte (${FONTES[s.fonte].curto}) define o termo como "também chamada de segurança da tecnologia da informação". No INES, SEGURANÇA é o profissional ou "situação fora de perigo", e SENHA é S-E-N-H-A soletrado seguido do sinal SEGREDO.`));
+  L.push('', '## Roteiro de gravação', '', '### 1. Apresentação', '');
+  L.push(`**Legenda na tela:** \`${estado.nome} — ${estado.curso}\``, '');
+  L.push(`**Sinalizar (sugestão com sinais do INES):** ${glosaApresentacao()}`, '');
+  L.push(`**Fala (opcional):** Olá! Meu nome é ${estado.nome} e faço o curso de ${estado.curso}. Neste vídeo, vou apresentar dez sinais relacionados à minha área de formação.`, '');
+  L.push('### 2. Apresentação dos sinais', '', 'Para cada item: `[legenda na tela] → [sinalizar com clareza] → [pausa curta]`', '');
+  estado.slots.forEach((id, i) => L.push(`${i + 1}. Legenda \`${i + 1}. ${legendaDe(SINAIS[id])}\` → sinalizar ${SINAIS[id].termo}`));
+  L.push('', '### 3. Encerramento', '', '**Legenda na tela:** `Obrigado!` → sinalizar OBRIGADO', '');
+  L.push('**Fala (opcional):** Esses foram dez sinais relacionados à área de Tecnologia da Informação. Obrigado pela atenção!', '');
+  L.push('## Checklist antes do envio', '');
+  CHECAGEM.forEach(c => L.push(`- [${estado.envio[c] ? 'x' : ' '}] ${c}`));
+  L.push('', '## Fontes consultadas', '', textoFontes(), '');
+  return L.join('\n');
+}
+async function copiar(txt, botao) {
+  try { await navigator.clipboard.writeText(txt); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  const t = botao.textContent; botao.textContent = 'Copiado ✓'; setTimeout(() => { botao.textContent = t; }, 1500);
+}
+function baixarTexto(nome, texto) {
+  const url = URL.createObjectURL(new Blob([texto], { type: 'text/markdown;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* ---------- aba Gravar ---------- */
+let rodada = null, gravador = null, pedacos = [], urlResultado = null, streamTela = null, linhasPrev = [];
+let comecando = false, baixado = false, erroGravador = '', ocultoDesde = 0, ocultos = [], ultimoEsc = 0;
+let motivos = []; // avisos acumulados durante a gravação (câmera/microfone perdidos); finalizar() os junta aos problemas
+const tela = document.createElement('canvas');
+const tctx = tela.getContext('2d');
+const medidor = document.createElement('canvas').getContext('2d');
+const fonteLegenda = fs => `700 ${fs}px system-ui, "Segoe UI", Roboto, Arial, sans-serif`;
+/* Relógio num Worker: o requestAnimationFrame para quando a janela fica escondida ou coberta, e o vídeo gravado congelaria.
+   O canvas é capturado com captureStream(0) e cada quadro é empurrado à mão (requestFrame), para não depender do compositor da aba. */
+let relogio = null, ultimoTique = 0, avisouFallback = false;
+try {
+  const src = 'let id=0;onmessage=e=>{clearInterval(id);if(e.data>0)id=setInterval(()=>postMessage(1),e.data)}';
+  relogio = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+  relogio.onmessage = () => { ultimoTique = performance.now(); if (rodada && rodada.gravar) desenharQuadro(); };
+  relogio.onerror = () => { relogio = null; };
+} catch (e) { relogio = null; }
+
+function montarPassos() {
+  const nome = (estado.nome || '').trim() || 'Seu nome', curso = (estado.curso || '').trim() || 'Seu curso';
+  const p = [{ tipo: 'intro', legenda: [nome, curso], seg: +estado.segIntro || 18, dica: 'Apresentação', lembrete: glosaApresentacao() }];
+  estado.slots.forEach((id, i) => p.push({ tipo: 'termo', id, legenda: [`${i + 1}. ${legendaDe(SINAIS[id])}`], seg: +estado.segTermo || 6 }));
+  p.push({ tipo: 'fim', legenda: ['Obrigado!'], seg: +estado.segFim || 5, dica: 'Encerramento', lembrete: 'OBRIGADO' });
+  return p;
+}
+function tamanhoLegenda(linhas, W, H, ctx) {
+  let fs = Math.max(10, Math.round(H * 0.065));
+  const maxW = W * 0.86;
+  while (fs > 10) {
+    ctx.font = fonteLegenda(fs);
+    const larg = Math.max(...linhas.map(l => ctx.measureText(l).width)) + fs * 1.2;
+    if (larg <= maxW) break;
+    fs -= 1;
+  }
+  return fs;
+}
+function caminhoArredondado(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function desenharLegenda(ctx, linhas, W, H) {
+  const fs = tamanhoLegenda(linhas, W, H, ctx);
+  ctx.font = fonteLegenda(fs);
+  const lh = fs * 1.25, padX = fs * 0.6, padY = fs * 0.25;
+  const larg = Math.max(...linhas.map(l => ctx.measureText(l).width));
+  const bw = larg + padX * 2, bh = lh * linhas.length + padY * 2;
+  const x = (W - bw) / 2, y = estado.pos === 'baixo' ? H - H * 0.04 - bh : H * 0.04;
+  ctx.fillStyle = 'rgba(0,0,0,0.62)'; caminhoArredondado(ctx, x, y, bw, bh, fs * 0.35); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  linhas.forEach((l, i) => ctx.fillText(l, W / 2, y + padY + lh * i + lh / 2));
+}
+function mostrarLegendaPreview(linhas) {
+  linhasPrev = linhas.slice();
+  const el = $('#legendaPrev'); el.textContent = '';
+  linhas.forEach((l, i) => { if (i) el.appendChild(document.createElement('br')); el.appendChild(document.createTextNode(l)); });
+  el.className = 'legenda ' + estado.pos;
+  ajustarLegendaPreview();
+}
+function ajustarLegendaPreview() {
+  const p = $('#palcoRec'); if (!linhasPrev.length || !p.clientHeight) return;
+  $('#legendaPrev').style.fontSize = tamanhoLegenda(linhasPrev, p.clientWidth, p.clientHeight, medidor) + 'px';
+}
+function fmt(seg) { seg = Math.max(0, Math.round(seg)); return Math.floor(seg / 60) + ':' + String(seg % 60).padStart(2, '0'); }
+function slug(s) { return (s || 'video').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'video'; }
+function aviso(txt) { const a = $('#avisoGravar'); a.textContent = txt; a.hidden = !txt; }
+
+function prepararGravar() {
+  if (rodada) return;
+  const passos = montarPassos();
+  mostrarLegendaPreview(passos[0].legenda);
+  $('#pAgora').textContent = 'Pronto para gravar';
+  $('#pLembrete').hidden = true;
+  $('#pProx').textContent = camStream
+    ? 'Confira o enquadramento: cabeça, mãos e cintura à vista, e a legenda sem cobrir o rosto.'
+    : 'Ligue a câmera para começar.';
+  $('#pTempo').style.width = '0';
+  atualizarDuracao();
+}
+function atualizarDuracao() {
+  const t = estado.avanco === 'auto' ? (+estado.segIntro + 10 * +estado.segTermo + +estado.segFim) : 0;
+  $('#duracaoEst').textContent = t ? `Duração estimada: ${fmt(t)}, mais 3 s de contagem.` : 'No manual, você decide quanto tempo fica em cada termo.';
+}
+function escolherMime(comAudio) {
+  if (!window.MediaRecorder) return '';
+  const lista = comAudio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  return lista.find(m => MediaRecorder.isTypeSupported(m)) || '';
+}
+function bloquearAbas(b) {
+  $$('.aba').forEach(x => { x.disabled = b && x.dataset.aba !== 'gravar'; });
+  $('#btnDesligarCam').disabled = b;
+}
+function travarBotoes(b) { $('#btnGravar').disabled = b; $('#btnEnsaiar').disabled = b; }
+
+async function comecar(gravar) {
+  if (rodada || comecando) return;
+  if (gravar && urlResultado && !baixado && !confirm('A gravação anterior ainda não foi baixada. Gravar por cima dela?')) return;
+  comecando = true; travarBotoes(true);
+  try {
+    aviso('');
+    try { await ligarCamera(); }
+    catch (e) { aviso(msgErroCamera(e)); $$('.msg-camera').forEach(m => { m.textContent = msgErroCamera(e); }); return; }
+    if (rodada) return;
+    if (gravar && !window.MediaRecorder) { aviso('Este navegador não grava vídeo. Use o Chrome ou o Edge atualizados.'); return; }
+    let mic = null;
+    if (gravar && estado.audio) {
+      try { mic = await ligarMicrofone(); }
+      catch (e) { aviso('Microfone indisponível, então o vídeo sai sem som. ' + msgErroCamera(e)); }
+    }
+    if (rodada || !camStream) return;
+    if (document.activeElement) document.activeElement.blur();
+    rodada = { passos: montarPassos(), i: -1, gravar, timer: null, raf: null, inicio: 0, inicioPasso: 0 };
+    document.body.classList.add('rodando'); bloquearAbas(true);
+    if (gravar) { $('#resultado').hidden = true; erroGravador = ''; ocultos = []; ocultoDesde = 0; motivos = []; }
+    requestAnimationFrame(ajustarLegendaPreview);
+    const r = rodada;
+    const ok = await contagem(3, r);
+    if (!ok || rodada !== r) return;
+    if (gravar) {
+      try { iniciarGravador(mic); }
+      catch (e) { aviso('Não consegui iniciar a gravação: ' + e.message); parar(); return; }
+    }
+    r.inicio = performance.now();
+    irPara(0);
+    animar();
+  } finally { comecando = false; travarBotoes(false); }
+}
+function contagem(n, r) {
+  return new Promise(res => {
+    const el = $('#contagem'); el.hidden = false; let k = n; el.textContent = k;
+    $('#pAgora').textContent = 'Prepare-se…'; $('#pLembrete').hidden = true;
+    $('#pProx').textContent = 'Começa pela apresentação: ' + r.passos[0].lembrete + (r.gravar ? ' · Não minimize nem cubra a janela.' : '');
+    const t = setInterval(() => {
+      if (rodada !== r) { clearInterval(t); el.hidden = true; res(false); return; }
+      k -= 1;
+      if (k <= 0) { clearInterval(t); el.hidden = true; res(true); } else el.textContent = k;
+    }, 1000);
+  });
+}
+function iniciarGravador(mic) {
+  if (gravador && gravador.state !== 'inactive') throw new Error('já existe uma gravação em andamento');
+  const v = $('#camGravar');
+  tela.width = v.videoWidth || 1280; tela.height = v.videoHeight || 720;
+  streamTela = tela.captureStream(0);
+  desenharQuadro();
+  if (mic) mic.getAudioTracks().forEach(t => streamTela.addTrack(t));
+  const mime = escolherMime(streamTela.getAudioTracks().length > 0);
+  const opts = { videoBitsPerSecond: 6000000 }; if (mime) opts.mimeType = mime;
+  pedacos = [];
+  gravador = new MediaRecorder(streamTela, opts);
+  gravador.ondataavailable = e => { if (e.data && e.data.size) pedacos.push(e.data); };
+  gravador.onerror = e => { erroGravador = (e.error && e.error.name) || 'erro'; };
+  gravador.onstop = finalizar;
+  gravador.start(1000);
+  if (relogio) { relogio.postMessage(1000 / 30); ultimoTique = performance.now(); } // zera o tique: senão o primeiro animar() vê um tique velho e acusa fallback à toa
+  $('#pRec').hidden = false;
+}
+function desenharQuadro() {
+  const v = $('#camGravar'), W = tela.width, H = tela.height;
+  if (v.readyState >= 2) tctx.drawImage(v, 0, 0, W, H);
+  if (rodada && rodada.i >= 0) desenharLegenda(tctx, rodada.passos[rodada.i].legenda, W, H);
+  const t = streamTela && streamTela.getVideoTracks()[0];
+  if (t && t.requestFrame) t.requestFrame();
+}
+function animar() {
+  const r = rodada; if (!r) return;
+  const agora = performance.now();
+  if (r.gravar) {
+    if (!relogio || agora - ultimoTique > 150) { // Worker não disponível ou parado: desenha por aqui
+      if (!avisouFallback) { avisouFallback = true; console.warn('relógio: worker indisponível, usando requestAnimationFrame'); }
+      desenharQuadro();
+    }
+    $('#pRecTempo').textContent = fmt((agora - r.inicio) / 1000);
+  }
+  const p = r.passos[r.i];
+  $('#pTempo').style.width = (p && estado.avanco === 'auto') ? Math.min(100, (agora - r.inicioPasso) / (p.seg * 10)) + '%' : '0';
+  r.raf = requestAnimationFrame(animar);
+}
+function irPara(i) {
+  const r = rodada; if (!r) return;
+  r.i = i; r.inicioPasso = performance.now();
+  const p = r.passos[i];
+  mostrarLegendaPreview(p.legenda);
+  // no prompter sai o parêntese da legenda ("10. CIBERSEGURANÇA (segurança da informação)" quebraria em 2 linhas a 68 px); o canvas grava a legenda inteira
+  $('#pAgora').textContent = p.tipo === 'termo' ? p.legenda[0].replace(/\s*\(.*\)\s*$/, '') : p.dica;
+  const lem = $('#pLembrete'); lem.hidden = !p.lembrete; lem.textContent = p.lembrete || '';
+  const prox = r.passos[i + 1];
+  $('#pProx').textContent = prox
+    ? 'Próximo: ' + (prox.tipo === 'termo' ? SINAIS[prox.id].termo : prox.dica)
+    : (estado.avanco === 'auto' ? 'Último passo: termina sozinho.' : 'Último passo: avance para terminar.');
+  clearTimeout(r.timer);
+  if (estado.avanco === 'auto') r.timer = setTimeout(avancar, p.seg * 1000);
+  atualizarCanto(p);
+}
+function avancar() { const r = rodada; if (!r || r.i < 0) return; if (r.i < r.passos.length - 1) irPara(r.i + 1); else parar(); }
+function voltarPasso() { const r = rodada; if (!r || r.i <= 0) return; irPara(r.i - 1); }
+function atualizarCanto(p) {
+  const c = $('#canto');
+  if (!estado.canto || !p) { c.hidden = true; cantoPlayer.pausar(); return; }
+  const item = p.tipo === 'termo' ? { chave: p.id, id: p.id } : (p.tipo === 'intro' ? APRESENTACAO[0] : { chave: 'obrigado', id: 'obrigado' });
+  c.hidden = false; cantoPlayer.tocar(item);
+}
+function parar() {
+  const r = rodada; if (!r) return;
+  clearTimeout(r.timer); cancelAnimationFrame(r.raf); rodada = null;
+  if (relogio) relogio.postMessage(0);
+  $('#contagem').hidden = true; $('#pRec').hidden = true; $('#canto').hidden = true; cantoPlayer.pausar();
+  document.body.classList.remove('rodando'); bloquearAbas(false);
+  if (gravador && gravador.state !== 'inactive') gravador.stop(); else prepararGravar();
+}
+function finalizar() {
+  const tipo = (gravador && gravador.mimeType) || (pedacos[0] && pedacos[0].type) || 'video/webm';
+  const blob = new Blob(pedacos, { type: tipo });
+  pedacos = [];
+  if (streamTela) { streamTela.getVideoTracks().forEach(t => t.stop()); streamTela = null; }
+  gravador = null;
+  prepararGravar();
+  if (!blob.size) { aviso(['A gravação saiu vazia. Tente de novo e espere a contagem terminar.'].concat(motivos).join(' ')); return; }
+  if (urlResultado) URL.revokeObjectURL(urlResultado);
+  urlResultado = URL.createObjectURL(blob); baixado = false;
+  const ext = tipo.includes('mp4') ? 'mp4' : 'webm';
+  const rv = $('#resVideo');
+  rv.src = urlResultado;
+  const a = $('#resBaixar'); a.href = urlResultado; a.download = `libras-ti-${slug(estado.nome)}-${new Date().toISOString().slice(11, 19).replace(/:/g, '')}.${ext}`;
+  $('#resInfo').textContent = `${(blob.size / 1048576).toFixed(1)} MB · ${ext.toUpperCase()}`;
+  const problemas = motivos.slice();
+  if (erroGravador) problemas.push(`A gravação foi interrompida por erro do navegador (${erroGravador}); o arquivo pode estar incompleto.`);
+  if (ocultos.length) problemas.push('A janela ficou oculta em: ' + ocultos.map(([a0, b0]) => `${fmt(a0)}–${fmt(b0)}`).join(', ') + '. Confira o vídeo nesses trechos.');
+  const ra = $('#resAviso'); ra.textContent = problemas.join(' ');
+  aviso(problemas.join(' '));
+  $('#resultado').hidden = false;
+  $('#resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* baixa sozinho: perder a boa gravação custa mais que um arquivo a mais em Downloads.
+     Não marca `baixado`: o Chrome pode bloquear o download automático (vários arquivos sem gesto), e aí o aviso ao fechar e o confirm de gravar por cima precisam continuar ativos. Só o clique humano em #resBaixar marca. */
+  a.click();
+}
+/* webm do MediaRecorder vem sem duração; isto destrava a barra de tempo da prévia */
+$('#resVideo').addEventListener('loadedmetadata', function () {
+  const v = this;
+  if (v.duration === Infinity) {
+    v.currentTime = 1e101;
+    v.addEventListener('timeupdate', function volta() { v.removeEventListener('timeupdate', volta); v.currentTime = 0; });
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  const r = rodada; if (!r || !r.gravar) return;
+  if (document.hidden) ocultoDesde = performance.now();
+  else if (ocultoDesde) { ocultos.push([(ocultoDesde - r.inicio) / 1000, (performance.now() - r.inicio) / 1000]); ocultoDesde = 0; $('#pProx').textContent = 'A janela ficou oculta; o trecho será apontado no fim.'; }
+});
+
+/* ---------- abas e atalhos ---------- */
+let aba = 'estudar';
+function irAba(nome) {
+  if (rodada) return;
+  aba = nome;
+  document.body.dataset.aba = nome; // CSS: a barra (e a aba fixa no celular) só flutua com vidro na Ficha, onde não há vídeo
+  $$('.aba').forEach(b => { const on = b.dataset.aba === nome; b.classList.toggle('ativa', on); b.setAttribute('aria-selected', String(on)); });
+  $$('.painel').forEach(p => p.classList.toggle('ativo', p.id === 'p-' + nome));
+  if (nome === 'estudar') refPlayer.retomar(); else refPlayer.pausar();
+  if (nome === 'ficha') renderFicha();
+  if (nome === 'gravar') { prepararGravar(); requestAnimationFrame(ajustarLegendaPreview); }
+}
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, select, textarea')) return;
+  if (rodada) {
+    if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R'))) { e.preventDefault(); return; }
+    if (e.repeat) { e.preventDefault(); return; }
+    if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); avancar(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); voltarPasso(); }
+    else if (e.key === 'Escape') {
+      e.preventDefault();
+      const agora = performance.now();
+      if (!rodada.gravar || agora - ultimoEsc < 1500) { ultimoEsc = 0; parar(); }
+      else { ultimoEsc = agora; $('#pProx').textContent = 'Aperte Esc de novo para parar a gravação (ou use ■ Parar).'; }
+    }
+    return;
+  }
+  if (aba !== 'estudar') return;
+  if (e.key === ' ' && document.activeElement && document.activeElement.tagName === 'BUTTON') document.activeElement.blur();
+  if (e.key === 'ArrowRight') { e.preventDefault(); andar(1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); andar(-1); }
+  else if (e.key === ' ') { e.preventDefault(); alternarPausa(); }
+  else if (e.key === 'd' || e.key === 'D') alternarDomino();
+  else if (e.key === '1' || e.key === '2' || e.key === '3') setVel([0.5, 0.75, 1][+e.key - 1]);
+});
+document.addEventListener('keyup', e => { if (rodada && e.key === ' ') e.preventDefault(); });
+
+/* ---------- ligações ---------- */
+function ligarConfig() {
+  const nome = $('#cfgNome'), curso = $('#cfgCurso');
+  nome.value = estado.nome; curso.value = estado.curso;
+  nome.addEventListener('input', () => { estado.nome = nome.value; salvar(); sincronizarNome(); prepararGravar(); if (aba === 'estudar' || ['frase', 'datilologia'].includes(estado.atual)) renderLista(); });
+  curso.addEventListener('input', () => { estado.curso = curso.value; salvar(); prepararGravar(); });
+  $$('input[name=avanco]').forEach(r => { r.checked = r.value === estado.avanco; r.addEventListener('change', () => { estado.avanco = r.value; salvar(); atualizarDuracao(); }); });
+  [['#cfgSegIntro', 'segIntro'], ['#cfgSegTermo', 'segTermo'], ['#cfgSegFim', 'segFim']].forEach(([sel, k]) => {
+    const el = $(sel); el.value = estado[k];
+    el.addEventListener('input', () => {
+      const v = Math.round(+el.value);
+      if (v >= +el.min && v <= +el.max) { estado[k] = v; salvar(); atualizarDuracao(); }
+    });
+    el.addEventListener('blur', () => { el.value = estado[k]; });
+  });
+  $$('.stepper button').forEach(b => b.addEventListener('click', () => {
+    const inp = $('input', b.parentElement);
+    const v = Math.min(+inp.max, Math.max(+inp.min, (+inp.value || 0) + +b.dataset.step));
+    inp.value = v; inp.dispatchEvent(new Event('input'));
+  }));
+  $$('input[name=pos]').forEach(r => { r.checked = r.value === estado.pos; r.addEventListener('change', () => { estado.pos = r.value; salvar(); mostrarLegendaPreview(linhasPrev); }); });
+  const au = $('#cfgAudio'); au.checked = estado.audio; au.addEventListener('change', () => { estado.audio = au.checked; salvar(); });
+  const ca = $('#cfgCanto'); ca.checked = estado.canto; ca.addEventListener('change', () => { estado.canto = ca.checked; salvar(); });
+}
+function init() {
+  const ae = $('#avisoEstado'); if (avisoEstadoTxt) { ae.textContent = avisoEstadoTxt; ae.hidden = false; setTimeout(() => { ae.hidden = true; }, 12000); }
+  $('#dicaEstudo').hidden = !!estado.dicaOk;
+  $('#fecharDica').addEventListener('click', () => { estado.dicaOk = true; salvar(); $('#dicaEstudo').hidden = true; });
+  $$('.aba').forEach(b => b.addEventListener('click', () => irAba(b.dataset.aba)));
+  $('#velBtns').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setVel(+b.dataset.vel); });
+  $('#trechoBtns').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; estado.trecho = b.dataset.trecho === '1'; salvar(); marcarTrecho(); refPlayer.carregar(); });
+  $('#btnPausa').addEventListener('click', alternarPausa);
+  refPlayer.el.addEventListener('play', () => { $('#btnPausa').textContent = 'Pausar'; });
+  refPlayer.el.addEventListener('pause', () => { $('#btnPausa').textContent = 'Continuar'; });
+  $('#btnAnt').addEventListener('click', () => andar(-1));
+  $('#btnProx').addEventListener('click', () => andar(1));
+  $('#btnDomino').addEventListener('click', alternarDomino);
+  $('#params').addEventListener('change', e => {
+    const i = +e.target.dataset.p; const k = estado.atual;
+    const c = estado.chk[k] || [false, false, false, false, false]; c[i] = e.target.checked; estado.chk[k] = c; salvar();
+  });
+  $$('[data-ligar-camera]').forEach(b => b.addEventListener('click', async () => {
+    try { await ligarCamera(); } catch (e) { const m = msgErroCamera(e); $$('.msg-camera').forEach(x => { x.textContent = m; }); }
+  }));
+  $('#btnDesligarCam').addEventListener('click', desligarCamera);
+  $('#fichaCorpo').addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.aula) {
+      if (t.checked) estado.aula[t.dataset.aula] = true; else delete estado.aula[t.dataset.aula];
+      salvar(); renderFicha(); renderLista();
+      const cb = $(`input[data-aula="${t.dataset.aula}"]`); if (cb) cb.focus();
+    }
+    else if (t.dataset.slot !== undefined) trocarSlot(+t.dataset.slot, t.value);
+  });
+  $('#btnRestaurar').addEventListener('click', () => {
+    estado.slots = PADRAO.slice();
+    if (!todosItens().some(it => it.chave === estado.atual)) estado.atual = PADRAO[0];
+    salvar(); renderFicha(); atualizarProgresso(); prepararGravar();
+    selecionar(estado.atual);
+  });
+  $('#btnCopiarFontes').addEventListener('click', e => copiar(textoFontes(), e.currentTarget));
+  $('#btnBaixarRoteiro').addEventListener('click', () => baixarTexto('roteiro-libras-ti.md', gerarRoteiro()));
+  $('#btnEnsaiar').addEventListener('click', () => comecar(false));
+  $('#btnGravar').addEventListener('click', () => comecar(true));
+  $('#btnAvancar').addEventListener('click', e => { e.currentTarget.blur(); avancar(); });
+  $('#btnVoltarPasso').addEventListener('click', e => { e.currentTarget.blur(); voltarPasso(); });
+  $('#btnParar').addEventListener('click', parar);
+  $('#resBaixar').addEventListener('click', e => { if (e.isTrusted) baixado = true; });
+  $('#camGravar').addEventListener('loadedmetadata', e => {
+    const v = e.target; if (v.videoWidth) $('#palcoRec').style.aspectRatio = v.videoWidth + ' / ' + v.videoHeight;
+    requestAnimationFrame(ajustarLegendaPreview);
+  });
+  if (window.ResizeObserver) new ResizeObserver(ajustarLegendaPreview).observe($('#palcoRec'));
+  // máscara de rolagem da tabela só quando ela transborda (CSS .rolagem.transborda); sem overflow esmaecia a faixa de alerta da 1ª célula
+  const rol = $('.rolagem');
+  const marcarTransbordo = () => rol.classList.toggle('transborda', rol.scrollWidth > rol.clientWidth + 1);
+  if (window.ResizeObserver) new ResizeObserver(marcarTransbordo).observe(rol); else window.addEventListener('resize', marcarTransbordo);
+  marcarTransbordo();
+  window.addEventListener('beforeunload', e => { if ((rodada && rodada.gravar) || (urlResultado && !baixado)) { e.preventDefault(); e.returnValue = ''; } });
+  sincronizarNome();
+  ligarConfig(); setVel(estado.vel); marcarTrecho(); atualizarProgresso(); prepararGravar();
+  selecionar(estado.atual);
+}
+init();
+window.__estudio = { SINAIS, estado: () => estado, comecar, parar, avancar, tela, montarPassos, gerarRoteiro, textoFontes, trocarSlot };
+</script>
+</body>
+</html>
