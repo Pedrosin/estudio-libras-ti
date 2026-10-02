@@ -19,4 +19,4 @@ Tudo roda no navegador (Chrome ou Edge); nada é enviado para servidor. A câmer
 
 Os vídeos são exibidos direto das fontes acima e continuam sendo delas.
 
-`roteiro-libras-ti.md` é o roteiro de gravação com a lista de sinais e as fontes.
+`roteiro-libras-ti.md` é o roteiro de gravação com a lista de sinais e as fontes. Como a página funciona por dentro, como trocar um sinal, testar e publicar: [DOCS.md](DOCS.md).
